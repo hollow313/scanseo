@@ -126,6 +126,7 @@ ${content}
         <div class="footer-col">
           <p class="footer-col-title">Ressources &amp; légal</p>
           <ul>
+            <li><a href="/verificateur-balises">Vérificateur de balises</a></li>
             <li><a href="/blog">Blog</a></li>
             <li><a href="/mentions-legales">Mentions légales</a></li>
             <li><a href="/cgv">CGV</a></li>

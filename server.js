@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 async function importOptionalRoute(spec) {
   try {
     const mod = await import(spec);
-    const router = mod.default || (typeof mod.createRouter === 'function' ? mod.createRouter() : null);
+    const router = mod.default || mod.router || (typeof mod.createRouter === 'function' ? mod.createRouter() : null);
     if (router) console.log(`[routes] ${spec} monté`);
     return router || null;
   } catch (err) {
@@ -155,7 +155,12 @@ app.get('/audit/merci', (req, res) => {
 // Espace client : monté plus bas (/audit), après les pages publiques.
 
 // Pages publiques supportées
-const publicPages = ['tarifs', 'faq', 'exemple', 'mentions-legales', 'cgv', 'confidentialite'];
+const publicPages = [
+  'tarifs', 'faq', 'exemple', 'mentions-legales', 'cgv', 'confidentialite',
+  // Pages d'intention : chacune répond à une requête réelle, avec sa propre FAQ.
+  'audit-seo-prix', 'site-invisible-google', 'audit-seo-wordpress',
+  'verificateur-balises',
+];
 
 for (const slug of publicPages) {
   app.get(`/${slug}`, (req, res) => {
@@ -177,6 +182,10 @@ for (const slug of publicPages) {
       'mentions-legales': "Éditeur, hébergeur et responsable de publication de scanseo.fr, avec les informations légales de l'entreprise individuelle Loïc Huon (SIREN 853 658 375).",
       cgv: "Conditions générales de vente des audits SEO ScanSEO : commande, livraison, rétractation, garanties et médiation. Paiement sécurisé, facture émise par Polar.",
       confidentialite: "Quelles données ScanSEO conserve (email, URL auditée, rapport), pendant combien de temps, et comment demander leur suppression. Aucun cookie, aucun traceur.",
+      'audit-seo-prix': "Combien coûte un audit SEO en France : outil en libre-service, audit automatisé à 49 €, consultant de 300 à 1 500 €, agence. Ce que chaque prix contient réellement.",
+      'site-invisible-google': "Six causes expliquent qu'un site en ligne n'apparaisse pas sur Google : indexation, contenu trop court, balises, vitesse mobile, concurrence interne, absence de liens.",
+      'audit-seo-wordpress': "Les six défauts qui plafonnent le référencement d'un site WordPress, et ce qu'un audit doit réellement contenir pour être utilisable.",
+      'verificateur-balises': "Collez l'adresse d'une page et vérifiez ses balises title, meta description, H1, canonique et données structurées. Gratuit, sans compte, aucun email demandé.", 
     };
 
     const titles = {
@@ -186,14 +195,104 @@ for (const slug of publicPages) {
       // 30 caractères minimum : « Mentions légales — ScanSEO » n'en faisait que 29.
       'mentions-legales': 'Mentions légales et éditeur du site — ScanSEO',
       cgv: 'Conditions générales de vente — ScanSEO',
-      confidentialite: 'Politique de confidentialité — ScanSEO'
+      confidentialite: 'Politique de confidentialité — ScanSEO',
+      'audit-seo-prix': 'Combien coûte un audit SEO ? Prix et contenu — ScanSEO',
+      'site-invisible-google': "Pourquoi mon site n'apparaît pas sur Google — ScanSEO",
+      'audit-seo-wordpress': 'Audit SEO WordPress : les 6 points à vérifier — ScanSEO',
+      'verificateur-balises': 'Vérificateur de balises SEO gratuit — ScanSEO'
     };
+
+    const faqSchemas = {
+  "audit-seo-prix": [
+    {
+      "@type": "Question",
+      "name": "Un audit à 49 € vaut-il un audit à 1 000 € ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. Un audit automatisé détecte les problèmes mesurables et rédige les corrections ; un consultant ajoute l'analyse concurrentielle, la lecture des données réelles et l'accompagnement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Pourquoi payer alors que des outils gratuits existent ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Les outils gratuits donnent des alertes, sans les prioriser, sans les expliquer en français et sans rédiger vos balises."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Y a-t-il un abonnement caché ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. Un paiement, un rapport, aucune reconduction ni prélèvement récurrent."
+      }
+    }
+  ],
+  "site-invisible-google": [
+    {
+      "@type": "Question",
+      "name": "Combien de temps avant d'apparaître sur Google ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Une page indexée peut apparaître en quelques jours, mais se classer sur une requête concurrentielle prend des mois. L'indexation se mesure, le classement ne se promet pas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mon site est neuf, est-ce normal de ne pas apparaître ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. Un site sans historique ni lien entrant apparaît rarement avant plusieurs semaines. Un sitemap déclaré et des pages ciblant une question précise accélèrent les choses."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Un audit garantit-il de remonter ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. Un audit lève des obstacles mesurables : il rend le site indexable et lisible. La position dépend aussi de la concurrence et des liens."
+      }
+    }
+  ],
+  "audit-seo-wordpress": [
+    {
+      "@type": "Question",
+      "name": "Quel est le meilleur plugin SEO WordPress ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yoast, Rank Math et SEOPress couvrent tous les trois le nécessaire : title, meta description, sitemap et balises canoniques. Le plugin stocke vos balises, il ne les rédige pas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Un site WordPress peut-il être audité automatiquement ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. Le crawl analyse les pages générées, exactement comme Google les voit ; le CMS ne change que les instructions de correction."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Combien de pages auditer sur un site WordPress ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Toutes celles qui ont une chance d'être trouvées : pages principales, articles, pages de service. Les archives et pages de compte n'ont pas besoin d'être optimisées."
+      }
+    }
+  ]
+};
+
+    const jsonLd = faqSchemas[slug]
+      ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqSchemas[slug] }
+      : undefined;
 
     const html = renderPage({
       title: titles[slug] || `${page.title || slug.toUpperCase()} — ScanSEO`,
       description: page.description || descriptions[slug] || `Page ${slug} du service ScanSEO.`,
       content: page.html,
-      path: `/${slug}`
+      path: `/${slug}`,
+      jsonLd
     });
 
     res.status(200).send(html);
@@ -216,6 +315,9 @@ if (scanRouter) {
     });
   });
 }
+
+const tagsRouter = await importOptionalRoute('./src/routes/tags.js');
+if (tagsRouter) app.use('/api/tags', tagsRouter);
 
 const auditRouter = await importOptionalRoute('./src/routes/audit.js');
 if (auditRouter) {

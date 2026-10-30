@@ -93,7 +93,10 @@ export function robotsTxt(baseUrl) {
 }
 
 export function sitemapXml(baseUrl, extraPaths = []) {
-  const staticPaths = ['/', '/tarifs', '/faq', '/exemple', '/blog', '/mentions-legales', '/cgv', '/confidentialite'];
+  const staticPaths = [
+    '/', '/tarifs', '/faq', '/exemple', '/blog', '/mentions-legales', '/cgv', '/confidentialite',
+    '/audit-seo-prix', '/site-invisible-google', '/audit-seo-wordpress', '/verificateur-balises',
+  ];
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     ...staticPaths.map((p) => ({ loc: `${baseUrl}${p}`, lastmod: today, priority: p === '/' ? '1.0' : '0.8' })),
