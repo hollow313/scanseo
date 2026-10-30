@@ -379,8 +379,9 @@ test('L1 — Polar Webhook, Commandes, Audits et Emails', async (t) => {
       // Cartes d'offres distinctes avec prix en gros et boutons
       assert.match(html, /class="price-card"/);
       assert.match(html, /class="price-card featured"/);
-      assert.match(html, /49 €/);
-      assert.match(html, /149 €/);
+      // L'espace insécable est légitime dans un prix : on ne teste pas le caractère.
+      assert.match(html, /49(?:&nbsp;|\u00a0|\s)*€/);
+      assert.match(html, /149(?:&nbsp;|\u00a0|\s)*€/);
       assert.match(html, /href="\/checkout\/audit_49"/);
       assert.match(html, /href="\/checkout\/audit_149"/);
 
