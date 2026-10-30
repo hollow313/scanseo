@@ -115,6 +115,10 @@ router.post('/:token/relance', (req, res) => {
   if (!hasReaudit(parent.offer)) {
     return res.status(403).send('Le re-audit est inclus dans l\'offre complète uniquement.');
   }
+  // Un re-audit est déjà le second audit de la commande : il n'en ouvre pas un troisième.
+  if (parent.parent_audit_id) {
+    return res.status(409).send('Le re-audit de contrôle a déjà été utilisé pour cette commande.');
+  }
   if (parent.status !== 'done' || !parent.finished_at) {
     return res.status(409).send('Le re-audit sera possible une fois le rapport livré.');
   }

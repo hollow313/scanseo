@@ -133,7 +133,7 @@ function renderAuditStatus(audit, opts = {}) {
   } else if (audit.status === 'done') {
     // Re-audit de contrôle : inclus dans l'offre complète, pendant 90 jours.
     let reaudit = '';
-    if (hasReaudit(audit.offer)) {
+    if (hasReaudit(audit.offer) && !audit.parent_audit_id) {
       const jours = audit.finished_at
         ? Math.floor((Date.now() - new Date(audit.finished_at).getTime()) / 86_400_000)
         : null;

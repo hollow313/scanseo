@@ -87,6 +87,7 @@ async function sendReauditReminders() {
       AND a.reaudit_reminded_at IS NULL
       AND datetime(a.finished_at) <= datetime('now', '-80 days')
       AND datetime(a.finished_at) >= datetime('now', '-90 days')
+      AND a.parent_audit_id IS NULL
       AND NOT EXISTS (SELECT 1 FROM audits c WHERE c.parent_audit_id = a.id)
   `).all();
 
