@@ -14,6 +14,20 @@ function decodeEntities(s) {
     .replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (m) => ENTITIES[m] ?? m);
 }
 
+/** Contenu principal : sans en-tête, navigation, pied de page ni barre latérale. */
+function mainContent(html) {
+  const src = String(html || '');
+  const main = /<main[^>]*>([\s\S]*?)<\/main>/i.exec(src);
+  if (main && main[1] && main[1].trim().length > 200) return main[1];
+  const article = /<article[^>]*>([\s\S]*?)<\/article>/i.exec(src);
+  if (article && article[1] && article[1].trim().length > 200) return article[1];
+  return src
+    .replace(/<header[\s\S]*?<\/header>/gi, ' ')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
+    .replace(/<aside[\s\S]*?<\/aside>/gi, ' ');
+}
+
 function stripTags(html) {
   return decodeEntities(String(html || '')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -468,7 +482,7 @@ export async function collect(audit, { onProgress } = {}) {
     const meta = getMeta(html, 'description') || '';
     const h1s = getHeadings(html, 1);
     const h2s = getHeadings(html, 2);
-    const text = stripTags(html);
+    const text = stripTags(mainContent(html));
     const words = wordCount(text);
     const images = getImages(html);
     const { hrefs, anchors } = getLinks(html);

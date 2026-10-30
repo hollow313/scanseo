@@ -181,9 +181,10 @@ for (const slug of publicPages) {
 
     const titles = {
       tarifs: 'Tarifs des audits SEO — ScanSEO',
-      faq: 'Foire aux questions — ScanSEO',
+      faq: "Foire aux questions sur l'audit SEO — ScanSEO",
       exemple: 'Exemple de rapport d\'audit SEO — ScanSEO',
-      'mentions-legales': 'Mentions légales — ScanSEO',
+      // 30 caractères minimum : « Mentions légales — ScanSEO » n'en faisait que 29.
+      'mentions-legales': 'Mentions légales et éditeur du site — ScanSEO',
       cgv: 'Conditions générales de vente — ScanSEO',
       confidentialite: 'Politique de confidentialité — ScanSEO'
     };

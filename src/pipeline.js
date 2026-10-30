@@ -41,7 +41,7 @@ export async function processAudit(audit) {
     const { collect } = await import('./crawl.js');
     const { runChecks } = await import('./checks.js');
     const { analyze } = await import('./analyze.js');
-    const { renderPdf } = await import('./render.js');
+    const { renderPdf, RENDER_VERSION } = await import('./render.js');
 
     // 1. collecte
     let facts = readJson(factsPath);
@@ -111,13 +111,18 @@ export async function processAudit(audit) {
       if (out.fixes?.length) log(audit, 'validation', `${out.fixes.length} corrections`);
     }
 
-    // 4. rendu
-    let pdf = fs.existsSync(pdfPath) ? { path: pdfPath, pages: null, bytes: fs.statSync(pdfPath).size } : null;
+    // 4. rendu — le PDF n'est réutilisé que s'il a été produit par le gabarit courant.
+    const stampPath = path.join(dir, 'rapport.version');
+    const stamp = fs.existsSync(stampPath) ? fs.readFileSync(stampPath, 'utf8').trim() : null;
+    let pdf = fs.existsSync(pdfPath) && stamp === RENDER_VERSION
+      ? { path: pdfPath, pages: null, bytes: fs.statSync(pdfPath).size }
+      : null;
     if (pdf) {
-      log(audit, 'rendu', 'reprise depuis rapport.pdf');
+      log(audit, 'rendu', `reprise depuis rapport.pdf (gabarit ${RENDER_VERSION})`);
     } else {
-      log(audit, 'rendu', 'génération du PDF');
+      log(audit, 'rendu', `génération du PDF (gabarit ${RENDER_VERSION})`);
       pdf = await renderPdf(report, facts, { outPath: pdfPath, offer: audit.offer });
+      fs.writeFileSync(stampPath, RENDER_VERSION);
       if (pdf.warnings?.length) log(audit, 'rendu', pdf.warnings.join(' | '));
     }
 

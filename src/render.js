@@ -195,7 +195,7 @@ function coverPage(report, facts, offer = 'audit_49') {
     Aucune garantie de position, de trafic ou de délai de progression n'est associée à ce document.</div>
   </div>
   <div class="cv-foot">
-    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · ${offer === 'audit_149'
+    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · gabarit ${RENDER_VERSION} · ${offer === 'audit_149'
       ? 'Offre Audit Complet · 100 pages maximum'
       : 'Offre Audit SEO · 25 pages maximum'}</span>
     <span>${EDITOR.name} · ${EDITOR.contact}</span>
@@ -569,6 +569,11 @@ export async function resolveChromiumPath() {
 // ---------------------------------------------------------------------------
 // renderPdf
 // ---------------------------------------------------------------------------
+// Toute modification du gabarit incrémente cette version : le pipeline s'en sert
+// pour savoir si le PDF sur disque est à jour. Sans elle, « Relancer » réutilisait
+// le PDF existant et le client recevait l'ancienne mise en page indéfiniment.
+export const RENDER_VERSION = '2';
+
 export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) {
   const warnings = [];
 

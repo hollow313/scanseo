@@ -115,7 +115,7 @@ ${content}
           <p>Audit SEO automatisé en français : un score mesuré sur 100, des constats page par page et des textes rédigés prêts à copier-coller.</p>
         </div>
         <div class="footer-col">
-          <h4>Service</h4>
+          <p class="footer-col-title">Service</p>
           <ul>
             <li><a href="/#analyser">Analyser mon site</a></li>
             <li><a href="/tarifs">Tarifs</a></li>
@@ -124,7 +124,7 @@ ${content}
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Ressources &amp; légal</h4>
+          <p class="footer-col-title">Ressources &amp; légal</p>
           <ul>
             <li><a href="/blog">Blog</a></li>
             <li><a href="/mentions-legales">Mentions légales</a></li>
