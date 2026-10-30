@@ -1,0 +1,227 @@
+{
+  "report": {
+    "verdict": "Votre site est techniquement sain, mais Google ne dispose pas des titres ni des descriptions qui lui permettent de comprendre ce que vous faites et où.",
+    "resume_executif": "Le socle technique est solide : le site est en HTTPS, répond vite et ne présente aucune erreur majeure d'exploitation. Ce qui bloque, c'est le contenu des balises : neuf pages sur quatorze n'ont aucun titre principal et aucune description n'est renseignée. La correction est rapide car les textes exacts à coller sont fournis dans ce rapport. Commencez par les quatre titres de page manquants, puis les descriptions, puis allégez les photos qui ralentissent l'affichage mobile.",
+    "points_forts": [
+      "HTTPS actif avec redirection automatique depuis le HTTP.",
+      "Numéro de téléphone cliquable présent sur toutes les pages.",
+      "Fiche LocalBusiness en JSON-LD valide et cohérente avec la page d'accueil.",
+      "Aucune erreur dans le menu ni lien interne cassé."
+    ],
+    "piliers": [
+      { "code": "onpage", "commentaire": "C'est le pilier le plus faible : la majorité des pages n'ont ni titre, ni description, ni titre principal. Ce sont pourtant les trois éléments que Google lit en premier pour comprendre le sujet de chaque page." },
+      { "code": "technique", "commentaire": "Le socle tient : redirection HTTPS, certificat valide, temps de réponse correct. Deux points restent à corriger, le sitemap absent et l'attribut de langue." },
+      { "code": "contenu", "commentaire": "L'activité et la ville apparaissent trop peu dans le corps des pages internes : Google a du mal à associer votre site à une zone géographique précise." },
+      { "code": "performance", "commentaire": "L'affichage mobile est pénalisé par douze photos trop lourdes : 3,8 Mo transférés et un premier contenu visible au bout de 5,2 secondes." },
+      { "code": "local", "commentaire": "Le téléphone et l'adresse sont présents, mais rien ne renvoie vers votre fiche Google Business et aucune carte n'indique votre emplacement." }
+    ],
+    "constats": [
+      {
+        "code": "O08", "page": "https://plomberie-duval.fr/", "gravite": "critique",
+        "constat": "Neuf pages sur quatorze n'ont aucun titre principal H1.",
+        "pourquoi": "Le titre principal est l'élément que Google utilise pour décider du sujet d'une page. Sans lui, la page n'est pas comprise et ne peut pas être proposée sur les recherches locales.",
+        "correctif": "WordPress → Pages → Modifier → placer un bloc Titre en haut de page. Un seul H1 par page, différent du titre de page.",
+        "texte_a_coller": { "h1": "Plombier chauffagiste à Toulouse" }
+      },
+      {
+        "code": "O01", "page": "https://plomberie-duval.fr/chauffe-eau/", "gravite": "critique",
+        "constat": "Quatre pages (« Chauffe-eau », « Contact », « Mentions légales », « Réalisations ») portent le titre par défaut du thème, sans activité ni ville.",
+        "pourquoi": "Le titre de page est le texte le plus lu par Google et le seul que voit votre client dans les résultats. Un titre générique ne dit ni ce que vous faites ni où vous intervenez.",
+        "correctif": "WordPress → Pages → Modifier → onglet SEO (Rank Math ou Yoast) → renseigner le titre. Les textes exacts sont fournis en section 04.",
+        "texte_a_coller": { "title": "Chauffe-eau Toulouse : pose et entretien | Duval" }
+      },
+      {
+        "code": "P01 · P03", "page": "https://plomberie-duval.fr/", "gravite": "critique",
+        "constat": "Score de performance mobile mesuré à 43 sur 100, avec un contenu principal affiché en 5,2 secondes et 3,8 Mo transférés.",
+        "pourquoi": "Plus d'un visiteur sur deux arrive depuis un téléphone ; au-delà de trois secondes, la moitié abandonne avant d'avoir vu votre numéro.",
+        "correctif": "Convertir les douze photos les plus lourdes en WebP et les redimensionner à 1 600 pixels de large : environ 2,6 Mo de moins, sans changer de thème."
+      },
+      {
+        "code": "O05", "page": "https://plomberie-duval.fr/", "gravite": "majeur",
+        "constat": "La balise de description est absente sur les quatorze pages.",
+        "pourquoi": "La description ne fait pas monter la page, mais elle décide du clic : c'est la seule phrase que lit votre client dans les résultats avant de choisir votre site.",
+        "correctif": "WordPress → Pages → Modifier → onglet SEO → coller la description. Les cinq premières sont fournies en section 04.",
+        "texte_a_coller": { "meta": "Fuite, engorgement, chauffe-eau en panne : un plombier à Toulouse intervient en 2 h, 7 jours sur 7. Appelez le 05 61 00 00 00." }
+      },
+      {
+        "code": "O13", "page": "https://plomberie-duval.fr/", "gravite": "majeur",
+        "constat": "Douze images n'ont aucun attribut de description (alt).",
+        "pourquoi": "Les images sans description sont invisibles pour Google, qui ne peut ni les indexer ni s'en servir pour confirmer le sujet de la page.",
+        "correctif": "Médiathèque → sélectionner chaque image → renseigner le champ « Texte alternatif » avec une phrase courte décrivant la photo."
+      },
+      {
+        "code": "L03", "page": "https://plomberie-duval.fr/", "gravite": "majeur",
+        "constat": "Aucune page ne renvoie vers votre fiche Google Business Profile.",
+        "pourquoi": "La fiche est ce qui vous fait apparaître sur la carte et ce que Google recoupe avec votre site pour confirmer votre ancrage local.",
+        "correctif": "Ajouter un lien vers la fiche Google dans le pied de page, avec le libellé « Voir notre fiche Google »."
+      },
+      {
+        "code": "T05", "page": "https://plomberie-duval.fr/sitemap.xml", "gravite": "majeur",
+        "constat": "Le sitemap est absent : Google doit découvrir vos pages par les liens internes uniquement.",
+        "pourquoi": "Sans sitemap, les pages profondes mettent plus de temps à être explorées et les nouvelles pages peuvent rester invisibles plusieurs semaines.",
+        "correctif": "Installer un générateur de sitemap (Rank Math ou Yoast) puis déclarer l'adresse du sitemap dans Google Search Console."
+      },
+      {
+        "code": "O03", "page": "https://plomberie-duval.fr/", "gravite": "majeur",
+        "constat": "Quatre pages partagent le même titre de page (le titre par défaut du thème).",
+        "pourquoi": "Deux pages qui portent le même titre se font concurrence entre elles : Google ne sait pas laquelle proposer et n'en sort aucune.",
+        "correctif": "Renseigner un titre unique par page, qui décrit précisément son sujet. Les titres sont fournis en section 04.",
+        "texte_a_coller": { "title": "Contacter Plomberie Duval — Toulouse" }
+      },
+      {
+        "code": "C07", "page": "https://plomberie-duval.fr/", "gravite": "majeur",
+        "constat": "La ville de Toulouse n'apparaît qu'une seule fois dans le corps de l'accueil et presque jamais sur les pages internes.",
+        "pourquoi": "Pour un artisan, la zone d'intervention est le critère de recherche principal. Sans mention géographique, Google ne vous associe pas aux recherches « plombier Toulouse ».",
+        "correctif": "Ajouter la ville dans le premier paragraphe de chaque page de service, naturellement (« à Toulouse et ses environs »)."
+      },
+      {
+        "code": "O14", "page": "https://plomberie-duval.fr/", "gravite": "mineur",
+        "constat": "Douze images dépassent 200 Ko et ne sont pas redimensionnées pour le web.",
+        "pourquoi": "Ces fichiers alourdissent la page et ralentissent l'affichage, surtout sur mobile.",
+        "correctif": "Redimensionner les images à 1 600 pixels de large et les exporter en WebP avant de les remettre en ligne."
+      },
+      {
+        "code": "L05", "page": "https://plomberie-duval.fr/", "gravite": "mineur",
+        "constat": "Aucun avis client n'est visible sur le site.",
+        "pourquoi": "Les avis rassurent le visiteur et renforcent la confiance, ce qui augmente le taux de contact depuis la page.",
+        "correctif": "Afficher deux ou trois avis clients réels sur la page d'accueil, avec leur prénom et leur ville."
+      },
+      {
+        "code": "O19", "page": "https://plomberie-duval.fr/", "gravite": "mineur",
+        "constat": "L'attribut de langue (lang) est absent de la balise <html>.",
+        "pourquoi": "Google utilise cet attribut pour confirmer la langue et la zone de votre contenu.",
+        "correctif": "Ajouter lang=\"fr\" à la balise <html> du thème, via un plugin SEO ou directement dans le modèle de page."
+      },
+      {
+        "code": "L04", "page": "https://plomberie-duval.fr/contact/", "gravite": "mineur",
+        "constat": "La page contact ne contient ni carte ni plan d'accès.",
+        "pourquoi": "Une carte aide le visiteur à se repérer et confirme à Google l'adresse exacte de votre établissement.",
+        "correctif": "Intégrer une carte Google Maps sur la page contact, à côté de l'adresse."
+      },
+      {
+        "code": "O02", "page": "https://plomberie-duval.fr/mentions-legales/", "gravite": "mineur",
+        "constat": "Deux pages ont un titre de page hors des bornes recommandées (plus de 65 caractères).",
+        "pourquoi": "Un titre trop long est tronqué dans les résultats de Google, ce qui coupe l'information essentielle.",
+        "correctif": "Raccourcir ces titres à 65 caractères maximum, en gardant l'activité et la ville en tête."
+      }
+    ],
+    "textes_prets": [
+      {
+        "page": "https://plomberie-duval.fr/", "title": "Plombier à Toulouse — dépannage 2 h | Duval", "meta": "Plombier chauffagiste à Toulouse depuis 1998 : dépannage en 2 h, installation et entretien de chauffe-eau et de chaudière. Devis gratuit.", "h1": "Plombier chauffagiste à Toulouse", "h2": ["Dépannage en 2 h", "Chauffe-eau", "Entretien de chaudière"]
+      },
+      {
+        "page": "https://plomberie-duval.fr/depannage/", "title": "Dépannage plomberie Toulouse 7j/7 — Duval", "meta": "Fuite, engorgement, chauffe-eau en panne : un plombier à Toulouse intervient en 2 h, 7 jours sur 7. Appelez le 05 61 00 00 00.", "h1": "Dépannage plomberie à Toulouse", "h2": ["Fuite d'eau", "Débouchage", "Chauffe-eau en panne"]
+      },
+      {
+        "page": "https://plomberie-duval.fr/chauffe-eau/", "title": "Chauffe-eau Toulouse : pose et entretien | Duval", "meta": "Installation, remplacement et entretien de chauffe-eau à Toulouse. Ballon électrique ou gaz, dépannage rapide et devis gratuit sous 24 h.", "h1": "Pose et entretien de chauffe-eau à Toulouse", "h2": ["Installation de chauffe-eau", "Remplacement de ballon", "Entretien annuel"]
+      },
+      {
+        "page": "https://plomberie-duval.fr/contact/", "title": "Contacter Plomberie Duval — Toulouse", "meta": "Devis gratuit et intervention rapide à Toulouse. Téléphone, formulaire et adresse de l'atelier, du lundi au samedi de 8 h à 19 h.", "h1": "Contactez Plomberie Duval", "h2": ["Devis gratuit", "Horaires d'ouverture", "Adresse de l'atelier"]
+      },
+      {
+        "page": "https://plomberie-duval.fr/realisations/", "title": "Réalisations de Plomberie Duval à Toulouse", "meta": "Chantiers de plomberie réalisés à Toulouse : salles de bain, rénovation, chauffage. Photos avant/après et avis de clients satisfaits.", "h1": "Nos réalisations à Toulouse", "h2": ["Salles de bain", "Rénovation", "Chauffage"]
+      }
+    ],
+    "plan_30_jours": [
+      { "semaine": 1, "theme": "Les balises", "actions": ["Renseigner les 4 titres de page manquants (O01)", "Ajouter un titre principal sur les 9 pages (O08)", "Renseigner les descriptions (O05)", "Vérifier 3 pages en ligne"] },
+      { "semaine": 2, "theme": "Le local", "actions": ["Ajouter la ville dans le corps des pages (C07)", "Lier la fiche Google Business (L03)", "Ajouter une carte sur la page contact (L04)"] },
+      { "semaine": 3, "theme": "La vitesse", "actions": ["Convertir les 12 photos en WebP (O14)", "Redimensionner à 1 600 px (O14)", "Re-mesurer le score mobile (P01)"] },
+      { "semaine": 4, "theme": "Le suivi", "actions": ["Déclarer le sitemap dans Search Console (T05)", "Relever les positions sur 5 requêtes", "Solliciter deux avis clients (L05)"] }
+    ],
+    "a_verifier_dans_search_console": [
+      "Search Console → Performance → onglet Requêtes : relever les requêtes sur lesquelles votre site apparaît déjà, et leur position moyenne.",
+      "Search Console → Indexation → Pages : vérifier le nombre de pages indexées et les éventuelles pages exclues.",
+      "Search Console → Sitemaps : après avoir généré le sitemap, le déclarer ici et vérifier qu'il est lu sans erreur."
+    ],
+    "limites": "Cet audit ne mesure ni les positions Google, ni les volumes de recherche, ni les liens entrants : ces données demandent un accès propriétaire à Search Console. Les scores de performance sont mesurés à un instant donné et peuvent varier. Le rapport ne contient aucune promesse de résultat ni de délai de progression."
+  },
+  "facts": {
+    "site": {
+      "url": "https://plomberie-duval.fr/",
+      "host": "plomberie-duval.fr",
+      "activity": "plombier chauffagiste",
+      "city": "Toulouse",
+      "cms": "wordpress 6.8",
+      "pages_crawled": 14,
+      "partial": false,
+      "started_at": "2026-10-30T08:00:00Z"
+    },
+    "score": {
+      "global": 58,
+      "piliers": { "onpage": 44, "technique": 71, "contenu": 55, "performance": 62, "local": 70 },
+      "counts": { "critiques": 3, "majeurs": 6, "mineurs": 5, "informatifs": 0 }
+    },
+    "performance": {
+      "mobile": { "score": 43, "lcp_ms": 5200, "cls": 0.18, "inp_ms": 230, "ttfb_ms": 410 },
+      "desktop": { "score": 78, "lcp_ms": 2100, "cls": 0.04, "inp_ms": 90, "ttfb_ms": 380 }
+    },
+    "catalogue": [
+      { "code": "T01", "label": "HTTP → HTTPS absent ou non redirigé", "pillar": "technique", "result": "conforme" },
+      { "code": "T02", "label": "Certificat invalide / expiré / HSTS absent", "pillar": "technique", "result": "conforme" },
+      { "code": "T03", "label": "Accueil ne répond pas 200", "pillar": "technique", "result": "conforme" },
+      { "code": "T04", "label": "robots.txt absent", "pillar": "technique", "result": "conforme" },
+      { "code": "T05", "label": "Sitemap absent, invalide ou vide", "pillar": "technique", "result": "a_corriger" },
+      { "code": "T06", "label": "meta robots en noindex", "pillar": "technique", "result": "conforme" },
+      { "code": "T07", "label": "En-tête X-Robots-Tag: noindex", "pillar": "technique", "result": "conforme" },
+      { "code": "T08", "label": "Canonical absent", "pillar": "technique", "result": "conforme" },
+      { "code": "T09", "label": "Canonical pointant vers une autre URL", "pillar": "technique", "result": "conforme" },
+      { "code": "T10", "label": "Pages en 404/410 dans le sitemap ou la navigation", "pillar": "technique", "result": "conforme" },
+      { "code": "T11", "label": "Chaînes de redirection (> 1 saut)", "pillar": "technique", "result": "non_applicable" },
+      { "code": "T12", "label": "Divergence de contenu par User-Agent (cloaking)", "pillar": "technique", "result": "conforme" },
+      { "code": "T13", "label": "Contenu principal présent seulement après JS", "pillar": "technique", "result": "conforme" },
+      { "code": "T14", "label": "hreflang incohérent ou incomplet", "pillar": "technique", "result": "non_applicable" },
+      { "code": "T15", "label": "Contenu mixte (ressource http:// sur page https)", "pillar": "technique", "result": "conforme" },
+      { "code": "T16", "label": "TTFB > 800 ms", "pillar": "technique", "result": "conforme" },
+      { "code": "T17", "label": "URL avec paramètres / identifiants techniques", "pillar": "technique", "result": "non_applicable" },
+      { "code": "O01", "label": "<title> absent", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O02", "label": "<title> hors 30–65 caractères", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O03", "label": "<title> dupliqué entre pages", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O04", "label": "<title> sans marque ni localisation", "pillar": "onpage", "result": "conforme" },
+      { "code": "O05", "label": "Meta description absente", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O06", "label": "Meta description hors 120–165 caractères", "pillar": "onpage", "result": "conforme" },
+      { "code": "O07", "label": "Meta description dupliquée", "pillar": "onpage", "result": "conforme" },
+      { "code": "O08", "label": "Aucun <h1>", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O09", "label": "Plusieurs <h1>", "pillar": "onpage", "result": "non_applicable" },
+      { "code": "O10", "label": "<h1> vide", "pillar": "onpage", "result": "conforme" },
+      { "code": "O11", "label": "Hiérarchie de titres cassée (saut H2→H4)", "pillar": "onpage", "result": "conforme" },
+      { "code": "O12", "label": "Contenu mince (< 300 mots)", "pillar": "onpage", "result": "conforme" },
+      { "code": "O13", "label": "Images sans attribut alt", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O14", "label": "Images > 200 Ko ou non redimensionnées", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O15", "label": "Ancres internes génériques", "pillar": "onpage", "result": "conforme" },
+      { "code": "O16", "label": "Page du sitemap non liée en interne (orpheline)", "pillar": "onpage", "result": "conforme" },
+      { "code": "O17", "label": "Liens internes cassés (4xx)", "pillar": "onpage", "result": "conforme" },
+      { "code": "O18", "label": "Balises Open Graph / Twitter absentes", "pillar": "onpage", "result": "conforme" },
+      { "code": "O19", "label": "Attribut lang absent sur <html>", "pillar": "onpage", "result": "a_corriger" },
+      { "code": "O20", "label": "Données structurées absentes", "pillar": "onpage", "result": "conforme" },
+      { "code": "O21", "label": "JSON-LD invalide", "pillar": "onpage", "result": "conforme" },
+      { "code": "O22", "label": "Incohérence NAP entre JSON-LD, page et pied de page", "pillar": "onpage", "result": "conforme" },
+      { "code": "O23", "label": "Texte essentiel porté par une image", "pillar": "onpage", "result": "conforme" },
+      { "code": "O24", "label": "<meta name=\"keywords\"> ou balise obsolète", "pillar": "onpage", "result": "non_applicable" },
+      { "code": "C01", "label": "Ni l'activité ni la ville dans le corps de l'accueil", "pillar": "contenu", "result": "conforme" },
+      { "code": "C02", "label": "Cannibalisation : 2 pages visant la même intention", "pillar": "contenu", "result": "conforme" },
+      { "code": "C03", "label": "Contenu quasi dupliqué entre pages (SimHash < 5)", "pillar": "contenu", "result": "non_applicable" },
+      { "code": "C04", "label": "Aucune FAQ ni bloc de questions/réponses", "pillar": "contenu", "result": "conforme" },
+      { "code": "C05", "label": "Contenu clé à plus de 3 clics de l'accueil", "pillar": "contenu", "result": "conforme" },
+      { "code": "C06", "label": "Absence de page « contact » ou de contact direct", "pillar": "contenu", "result": "conforme" },
+      { "code": "C07", "label": "Aucune mention géographique sur les pages internes", "pillar": "contenu", "result": "a_corriger" },
+      { "code": "P01", "label": "Score mobile < 50", "pillar": "performance", "result": "a_corriger" },
+      { "code": "P02", "label": "Score mobile 50–74", "pillar": "performance", "result": "conforme" },
+      { "code": "P03", "label": "LCP > 2,5 s", "pillar": "performance", "result": "a_corriger" },
+      { "code": "P04", "label": "CLS > 0,1", "pillar": "performance", "result": "conforme" },
+      { "code": "P05", "label": "INP > 200 ms", "pillar": "performance", "result": "conforme" },
+      { "code": "P06", "label": "Poids de page > 2 Mo", "pillar": "performance", "result": "a_corriger" },
+      { "code": "P07", "label": "Opportunités Lighthouse non exploitées (≥ 3)", "pillar": "performance", "result": "non_applicable" },
+      { "code": "L01", "label": "Aucun lien tel: cliquable", "pillar": "local", "result": "conforme" },
+      { "code": "L02", "label": "Adresse postale absente ou incohérente", "pillar": "local", "result": "conforme" },
+      { "code": "L03", "label": "Aucun lien vers la fiche Google Business", "pillar": "local", "result": "a_corriger" },
+      { "code": "L04", "label": "Aucune carte / plan d'accès", "pillar": "local", "result": "a_corriger" },
+      { "code": "L05", "label": "Aucun avis client visible", "pillar": "local", "result": "a_corriger" },
+      { "code": "L06", "label": "Plusieurs établissements sur une seule page", "pillar": "local", "result": "non_applicable" },
+      { "code": "S01", "label": "Mentions légales absentes", "pillar": "local", "result": "conforme" },
+      { "code": "S02", "label": "Traceur chargé sans bandeau de consentement", "pillar": "local", "result": "non_applicable" },
+      { "code": "S03", "label": "Liens sortants vers des domaines douteux (> 5)", "pillar": "local", "result": "conforme" },
+      { "code": "S04", "label": "Indices de compromission", "pillar": "local", "result": "conforme" },
+      { "code": "S05", "label": "Version de CMS exposée", "pillar": "local", "result": "conforme" }
+    ]
+  }
+}

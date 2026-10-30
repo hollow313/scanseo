@@ -1,0 +1,136 @@
+{
+  "verdict": "Le site souffre de balises absentes et de contenus trop courts qui pénalisent sa lecture.",
+  "resume_executif": "Votre site plomberie-duval.fr présente plusieurs pages sans balise title ni meta description. Ces corrections sont rapides à appliquer dans WordPress. En les corrigeant, vous pouvez espérer +320 % de trafic dans les prochains mois.",
+  "points_forts": [
+    "Le site est servi en HTTPS.",
+    "Votre numéro de téléphone est cliquable sur le site.",
+    "La page d'accueil contient plus de 300 mots."
+  ],
+  "piliers": [
+    { "code": "technique", "commentaire": "La technique est globalement correcte mais le fichier robots.txt est absent." },
+    { "code": "onpage", "commentaire": "Plusieurs balises title et meta sont absentes ou hors bornes." },
+    { "code": "contenu", "commentaire": "Certaines pages de service sont trop courtes." },
+    { "code": "performance", "commentaire": "Le score mobile est moyen et le LCP dépasse le seuil." },
+    { "code": "local", "commentaire": "La fiche Google Business n'est pas reliée au site." }
+  ],
+  "constats": [
+    {
+      "code": "X99",
+      "page": "https://plomberie-duval.fr/",
+      "gravite": "majeur",
+      "constat": "Contrôle inventé qui n'existe pas dans le catalogue.",
+      "pourquoi": "Ce contrôle n'existe pas et doit être retiré.",
+      "correctif": "Retirer ce constat.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "O01",
+      "page": "https://plomberie-duval.fr/depannage-plomberie-toulouse",
+      "gravite": "critique",
+      "constat": "La balise title est absente sur la page dépannage.",
+      "pourquoi": "Sans title, le moteur de recherche affiche un texte arbitraire et la page est moins cliquée.",
+      "correctif": "Dans WordPress → Pages → Modifier, renseignez le champ title de l'onglet SEO.",
+      "texte_a_coller": { "title": "Dépannage plomberie 24h/24 à Toulouse | Duval Plomberie", "meta": "Besoin d'un dépannage plomberie urgent à Toulouse ? Duval Plomberie intervient rapidement, 24h/24 et 7j/7. Appelez-nous pour un devis gratuit.", "h1": "Dépannage plomberie à Toulouse", "h2": ["Intervention en urgence", "Nos prestations de dépannage"] }
+    },
+    {
+      "code": "O05",
+      "page": "https://plomberie-duval.fr/fuite-d-eau",
+      "gravite": "majeur",
+      "constat": "La meta description est absente sur la page fuite d'eau.",
+      "pourquoi": "Sans meta description, le moteur compose lui-même un extrait qui ne met pas en avant votre offre.",
+      "correctif": "Rédigez une meta description de 120 à 165 caractères dans l'onglet SEO de la page.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "O08",
+      "page": "https://plomberie-duval.fr/toilette-wc",
+      "gravite": "critique",
+      "constat": "Aucune balise h1 n'est détectée sur la page toilette-wc.",
+      "pourquoi": "Le h1 indique au lecteur et au moteur le sujet principal de la page.",
+      "correctif": "Ajoutez un unique h1 qui décrit la page.",
+      "texte_a_coller": { "title": "Pose de WC à Toulouse | Duval Plomberie", "meta": "Installation et remplacement de WC à Toulouse par un plombier professionnel. WC suspendus, classiques et broyeurs, devis gratuit.", "h1": "Pose et remplacement de WC à Toulouse", "h2": ["WC suspendu", "WC classique et broyeur"] }
+    },
+    {
+      "code": "O03",
+      "page": "https://plomberie-duval.fr/salle-de-bain",
+      "gravite": "majeur",
+      "constat": "Le title est dupliqué entre salle-de-bain et installation-sanitaire.",
+      "pourquoi": "Deux pages avec le même title se concurrencent sur la même requête.",
+      "correctif": "Rendez chaque title unique en décrivant la prestation précise.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "O13",
+      "page": "https://plomberie-duval.fr/",
+      "gravite": "majeur",
+      "constat": "7 images sur 12 sont sans attribut alt.",
+      "pourquoi": "Les images sans description textuelle sont invisibles pour les moteurs et les lecteurs d'écran.",
+      "correctif": "Ajoutez un attribut alt descriptif à chaque image dans la médiathèque WordPress.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "P03",
+      "page": "https://plomberie-duval.fr/",
+      "gravite": "majeur",
+      "constat": "Le LCP est de 4100 ms, au-dessus du seuil de 2500 ms.",
+      "pourquoi": "Une page lente fait patienter vos visiteurs, qui peuvent quitter le site.",
+      "correctif": "Compressez l'image principale et activez le chargement différé.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "L03",
+      "page": "https://plomberie-duval.fr/contact",
+      "gravite": "majeur",
+      "constat": "Aucun lien vers la fiche Google Business sur la page contact.",
+      "pourquoi": "Votre fiche Google Business renforce la confiance locale.",
+      "correctif": "Ajoutez un lien vers votre fiche Google Business.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "T04",
+      "page": null,
+      "gravite": "mineur",
+      "constat": "Le fichier robots.txt est absent.",
+      "pourquoi": "Les moteurs n'ont pas d'instruction de parcours.",
+      "correctif": "Créez un fichier robots.txt à la racine du site.",
+      "texte_a_coller": null
+    },
+    {
+      "code": "C04",
+      "page": null,
+      "gravite": "mineur",
+      "constat": "Aucun bloc FAQ n'est détecté sur le site.",
+      "pourquoi": "Une FAQ répond aux questions courantes et peut améliorer la visibilité.",
+      "correctif": "Ajoutez une FAQ avec les questions fréquentes de vos clients.",
+      "texte_a_coller": null
+    }
+  ],
+  "textes_prets": [
+    {
+      "page": "https://plomberie-duval.fr/depannage-plomberie-toulouse",
+      "title": "Plombier à Toulouse — dépannage, installation et entretien de chauffe-eau pour particuliers",
+      "meta": "Besoin d'un dépannage plomberie urgent à Toulouse ? Duval Plomberie intervient rapidement, 24h/24 et 7j/7. Demandez votre devis gratuit.",
+      "h1": "Dépannage plomberie à Toulouse",
+      "h2": ["Intervention en urgence", "Nos prestations"]
+    },
+    {
+      "page": "https://plomberie-duval.fr/devis",
+      "title": "Devis plombier gratuit à Toulouse | Duval Plomberie",
+      "meta": "Demandez votre devis plomberie gratuit et sans engagement à Toulouse. Duval Plomberie vous répond rapidement avec un tarif clair.",
+      "h1": "Demander un devis",
+      "h2": ["Formulaire de devis", "Nos engagements"]
+    }
+  ],
+  "plan_30_jours": [
+    { "semaine": 1, "theme": "Balises absentes", "actions": ["Ajoutez les title manquants (O01)", "Ajoutez les meta descriptions (O05)"] },
+    { "semaine": 2, "theme": "Contenus", "actions": ["Ajoutez les h1 manquants (O08)", "Dédoublonnez les titles (O03)"] },
+    { "semaine": 3, "theme": "Performance", "actions": ["Réduisez le LCP (P03)"] },
+    { "semaine": 4, "theme": "Local", "actions": ["Reliez votre fiche Google Business (L03)"] }
+  ],
+  "a_verifier_dans_search_console": [
+    "Google Search Console → Performance : vérifiez vos positions et requêtes réelles.",
+    "Google Search Console → Indexation → Pages : vérifiez le nombre de pages indexées.",
+    "Google Search Console → Liens : vérifiez les sites qui pointent vers le vôtre."
+  ],
+  "limites": "Cet audit mesure la technique, le contenu visible et la performance des pages. Il ne mesure pas les positions Google ni les backlinks."
+}

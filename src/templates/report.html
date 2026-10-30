@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+{{CSS}}
+</head>
+<body>
+<!--
+  GABARIT B · Produit — direction validée (voir /data/scanseo/templates/b-produit/).
+  Ce fichier est le coquillage statique du rapport. Le contenu des 9 sections est
+  généré par la fonction de rendu (src/render.js) depuis le rapport JSON validé,
+  puis injecté à la place de {{PAGES}}. Chaque <section class="page"> est une page A4
+  (marges portées par le CSS), les constats sont paginés dynamiquement (3 par page,
+  4 s'ils sont courts), une carte ne se coupe jamais (break-inside: avoid).
+
+  Ordre des sections :
+    1. Couverture (anneau de score, pastilles de gravité)
+    2. Synthèse (verdict, 5 actions, ce qui fonctionne)
+    3. Scores par pilier (barres + commentaire)
+    4. Constats (cartes à liseré de gravité + bloc « texte à coller »)
+    5. Textes prêts (tableau + compteurs de caractères)
+    6. Plan 30 jours (4 cartes)
+    7. Search Console (3 étapes)
+    8. Méthode & limites
+    9. Annexe technique (66 contrôles)
+-->
+{{PAGES}}
+</body>
+</html>

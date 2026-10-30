@@ -1,0 +1,5 @@
+{
+  "verdict": 123,
+  "resume_executif": "Ceci est un rapport volontairement invalide pour tester la bascule fallback.",
+  "constats": "not-an-array"
+}

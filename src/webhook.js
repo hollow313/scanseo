@@ -83,6 +83,26 @@ export function normalizeSiteUrl(rawUrl) {
 }
 
 export async function handlePolarWebhook(req, res) {
+  try {
+    return await handlePolarWebhookInner(req, res);
+  } catch (err) {
+    // Une exception dans ce handler ne doit JAMAIS tuer le process : Polar réessaie,
+    // et un site tombé pour un webhook mal formé est une panne bien plus grave.
+    console.error('[webhook] exception non gérée:', err?.message || err);
+    try {
+      const db = getDb();
+      const wid = req.headers['webhook-id'];
+      if (wid) {
+        db.prepare("UPDATE events SET status='failed', last_error=? WHERE webhook_id=? AND status != 'processed'")
+          .run(String(err?.message || err).slice(0, 500), wid);
+      }
+    } catch { /* la traçabilité ne doit pas masquer l'erreur d'origine */ }
+    if (!res.headersSent) return res.status(500).json({ error: 'processing_failed' });
+    return undefined;
+  }
+}
+
+async function handlePolarWebhookInner(req, res) {
   const rawBody = req.body;
   const headers = req.headers;
 
@@ -129,6 +149,17 @@ export async function handlePolarWebhook(req, res) {
   if (eventType === 'order.paid') {
     const data = event.data || {};
     const productId = data.product_id;
+
+    // Idempotence métier, en plus de celle par webhook-id : Polar peut renvoyer le même
+    // paiement avec un NOUVEL identifiant d'événement. Sans ce garde, l'insertion violait
+    // la contrainte UNIQUE sur orders.provider_ref et faisait tomber le process.
+    if (data.id) {
+      const existingOrder = db.prepare('SELECT id FROM orders WHERE provider_ref = ?').get(data.id);
+      if (existingOrder) {
+        db.prepare("UPDATE events SET status = 'processed', processed_at = ? WHERE id = ?").run(now, eventRowId);
+        return res.status(200).json({ ok: true, already_processed: true });
+      }
+    }
 
     // Détermination de l'offre
     let offer = null;

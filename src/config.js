@@ -32,6 +32,9 @@ export const config = {
   pagespeedApiKey: process.env.PAGESPEED_API_KEY || '',
   polarWebhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
   polarProduct49: process.env.POLAR_PRODUCT_49 || '',
+  // liens de checkout Polar (publics). Surchargeables par env.
+  polarCheckout49: process.env.POLAR_CHECKOUT_49 || 'https://buy.polar.sh/polar_cl_k4QjhXH3YH57cuhcG06VhC0mWL5lH1Rp4qqOI2hzLsw',
+  polarCheckout149: process.env.POLAR_CHECKOUT_149 || 'https://buy.polar.sh/polar_cl_Xb8MfXTawFL0doZNQuWhzeT8b7JnHouzDXBzu4WDbkQ',
   polarProduct149: process.env.POLAR_PRODUCT_149 || '',
   smtpUrl: process.env.SMTP_URL || '',
   smtpFrom: process.env.SMTP_FROM || '',

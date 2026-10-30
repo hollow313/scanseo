@@ -7,6 +7,7 @@ import { checkHealth } from './src/health.js';
 import { getPageContent, resolveImage } from './src/content.js';
 import { renderPage } from './src/views/layout.js';
 import { handlePolarWebhook } from './src/webhook.js';
+import { listPosts, getPost, robotsTxt, sitemapXml } from './src/blog.js';
 
 // 1. Validation stricte des variables d'environnement requises
 validateConfig();
@@ -30,6 +31,20 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });
+
+// Montage conditionnel des routeurs livrés par les lots L5/L6 : le serveur démarre
+// même si un module n'est pas encore là, avec un repli explicite.
+async function importOptionalRoute(spec) {
+  try {
+    const mod = await import(spec);
+    const router = mod.default || (typeof mod.createRouter === 'function' ? mod.createRouter() : null);
+    if (router) console.log(`[routes] ${spec} monté`);
+    return router || null;
+  } catch (err) {
+    console.warn(`[routes] ${spec} indisponible (${err.code || err.message})`);
+    return null;
+  }
+}
 
 // Santé
 app.get('/healthz', (req, res) => {
@@ -72,18 +87,13 @@ app.get('/checkout/:offer', (req, res) => {
     return res.status(404).send('Offre inconnue');
   }
 
-  // Redirection vers le checkout Polar
-  const polarCheckoutUrl = `https://polar.sh/checkout?product_id=${encodeURIComponent(productId)}`;
+  // Liens de checkout créés côté Polar (un par produit). Un lien mort ici = aucun encaissement.
+  const polarCheckoutUrl = offer === 'audit_49' ? config.polarCheckout49 : config.polarCheckout149;
+  if (!polarCheckoutUrl || !polarCheckoutUrl.startsWith('https://')) {
+    console.error('[checkout] lien Polar manquant ou invalide pour', offer);
+    return res.status(503).send("Le paiement est momentanément indisponible. Réessayez dans quelques minutes.");
+  }
   res.redirect(302, polarCheckoutUrl);
-});
-
-// Formulaire scan teaser (état "bientôt disponible" avant L5)
-app.post('/api/scan', (req, res) => {
-  res.status(200).json({
-    ok: true,
-    status: 'info',
-    message: "L'analyse gratuite instantanée arrive très prochainement (Lot 5). Les audits complets 49 € et 149 € sont déjà opérationnels ci-dessous !"
-  });
 });
 
 // Page d'accueil
@@ -98,34 +108,25 @@ app.get('/', (req, res) => {
   res.status(200).send(html);
 });
 
-// Espace client
-app.get('/audit/:token', (req, res) => {
-  const token = req.params.token;
-  const audit = db.prepare('SELECT * FROM audits WHERE token = ?').get(token);
-  if (!audit) {
-    return res.status(404).send(renderPage({
-      title: 'Audit introuvable — ScanSEO',
-      content: '<h1>Audit introuvable (404)</h1><p>Ce lien d\'accès est invalide ou expiré.</p>',
-      path: '/audit'
-    }));
-  }
-
-  const html = renderPage({
-    title: `Audit de ${audit.host} — ScanSEO`,
+// Retour de paiement Polar (success_url) — doit être déclaré avant /audit/:token
+app.get('/audit/merci', (req, res) => {
+  res.status(200).send(renderPage({
+    title: 'Merci — votre audit démarre | ScanSEO',
+    description: "Votre paiement est confirmé. Indiquez votre activité et votre ville pour lancer l'audit.",
     content: `
       <div class="content-box">
-        <h1>Audit SEO de ${audit.host}</h1>
-        <p>Statut actuel : <strong>${audit.status}</strong></p>
-        <p>Offre souscrite : ${audit.offer === 'audit_49' ? 'Audit SEO (49 €)' : 'Audit Complet (149 €)'}</p>
-        <p>Créé le : ${new Date(audit.created_at).toLocaleString('fr-FR')}</p>
-        <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-        <p>Votre audit est en cours de traitement. Vous recevrez votre rapport complet par email dès finalisation.</p>
-      </div>
-    `,
-    path: '/audit'
-  });
-  res.status(200).send(html);
+        <h1>Paiement confirmé, merci.</h1>
+        <p>Vous allez recevoir un email avec le lien de votre espace : il vous reste <strong>trois questions</strong>
+        (activité, ville, concurrents éventuels) à renseigner pour que l'audit démarre.</p>
+        <p>Le rapport arrive par email, généralement sous 15 minutes.</p>
+        <p style="font-size:.9rem;color:var(--text-muted)">Si vous ne recevez rien d'ici 10 minutes, vérifiez vos indésirables,
+        puis écrivez à ${config.contactEmail}.</p>
+      </div>`,
+    path: '/audit/merci'
+  }));
 });
+
+// Espace client : monté plus bas (/audit), après les pages publiques.
 
 // Pages publiques supportées
 const publicPages = ['tarifs', 'faq', 'exemple', 'mentions-legales', 'cgv', 'confidentialite'];
@@ -160,6 +161,116 @@ for (const slug of publicPages) {
     res.status(200).send(html);
   });
 }
+
+// --- Montage des routeurs L5/L6, APRÈS les pages publiques -------------------
+// Chaque routeur est monté sur son préfixe : un montage à la racine laisserait
+// son middleware d'authentification (admin) intercepter /blog et conserverait /:id
+// (scan) capter /blog. C'est le défaut qui a rendu le blog inaccessible une première fois.
+const scanRouter = await importOptionalRoute('./src/routes/scan.js');
+if (scanRouter) {
+  app.use('/api/scan', scanRouter);
+} else {
+  app.post('/api/scan', (req, res) => {
+    res.status(200).json({
+      ok: true,
+      status: 'info',
+      message: "L'analyse gratuite instantanée arrive très prochainement. Les audits complets 49 € et 149 € sont déjà opérationnels ci-dessous."
+    });
+  });
+}
+
+const auditRouter = await importOptionalRoute('./src/routes/audit.js');
+if (auditRouter) {
+  app.use('/audit', auditRouter);
+} else {
+  app.get('/audit/:token', (req, res) => {
+    const audit = db.prepare('SELECT * FROM audits WHERE token = ?').get(req.params.token);
+    if (!audit) {
+      return res.status(404).send(renderPage({
+        title: 'Audit introuvable — ScanSEO',
+        content: '<h1>Audit introuvable (404)</h1><p>Ce lien est invalide ou expiré.</p>',
+        path: '/audit'
+      }));
+    }
+    res.status(200).send(renderPage({
+      title: `Audit de ${audit.host} — ScanSEO`,
+      content: `<div class="content-box"><h1>Audit SEO de ${audit.host}</h1>
+        <p>Statut : <strong>${audit.status}</strong></p>
+        <p>Vous recevrez le rapport par email dès finalisation.</p></div>`,
+      path: '/audit'
+    }));
+  });
+}
+
+const adminRouter = await importOptionalRoute('./src/routes/admin.js');
+if (adminRouter) app.use('/admin', adminRouter);
+
+// Blog (contenu éditorial, dossier monté /content/blog, repli embarqué)
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send(robotsTxt(config.publicBaseUrl));
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml').send(sitemapXml(config.publicBaseUrl));
+});
+
+app.get('/blog', (req, res) => {
+  const posts = listPosts();
+  const items = posts.length
+    ? posts.map((p) => `<article class="content-box" style="margin-bottom:1rem">
+        <h2 style="margin-bottom:.25rem"><a href="/blog/${p.slug}" style="color:var(--primary);text-decoration:none">${p.title}</a></h2>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.5rem">${p.date}</p>
+        <p>${p.description}</p></article>`).join('')
+    : '<div class="content-box"><p>Aucun article publié pour le moment.</p></div>';
+  res.status(200).send(renderPage({
+    title: 'Conseils référencement pour PME et artisans — ScanSEO',
+    description: "Comprendre le référencement naturel sans jargon : prix, délais, erreurs fréquentes et méthode.",
+    content: `<div class="content-box"><h1>Comprendre le référencement</h1>
+      <p>Des réponses concrètes aux questions que se posent les dirigeants de TPE et les artisans.</p></div>${items}`,
+    path: '/blog'
+  }));
+});
+
+app.get('/blog/:slug', (req, res) => {
+  const post = getPost(req.params.slug);
+  if (!post) {
+    return res.status(404).send(renderPage({
+      title: 'Article introuvable — ScanSEO',
+      content: '<h1>Article introuvable (404)</h1><p><a href="/blog">Voir tous les articles</a></p>',
+      path: '/blog'
+    }));
+  }
+  res.status(200).send(renderPage({
+    title: `${post.title} — ScanSEO`.slice(0, 65),
+    description: post.description,
+    content: `<div class="content-box">${post.html}</div>
+      <div class="content-box"><p><a href="/tarifs" class="btn">Voir les audits (dès 49 €)</a>
+      <a href="/blog" style="margin-left:1rem">Tous les articles</a></p></div>`,
+    path: `/blog/${post.slug}`
+  }));
+});
+
+app.use((req, res) => {
+  res.status(404).send(renderPage({
+    title: 'Page introuvable — ScanSEO',
+    content: '<h1>Page introuvable (404)</h1><p>Cette page n\'existe pas. <a href="/">Retour à l\'accueil</a></p>',
+    path: req.path
+  }));
+});
+
+// Filet de sécurité : aucune exception asynchrone ne doit arrêter le site.
+app.use((err, req, res, next) => {
+  console.error('[http] erreur non gérée sur', req.method, req.path, ':', err?.message || err);
+  if (res.headersSent) return next(err);
+  return res.status(500).json({ error: 'server_error' });
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('[process] unhandledRejection:', err?.message || err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[process] uncaughtException:', err?.message || err);
+});
 
 // Démarrage du serveur HTTP
 const server = app.listen(config.port, '0.0.0.0', () => {
