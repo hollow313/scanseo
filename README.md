@@ -181,37 +181,25 @@ docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compo
 
 # retour arrière
 docker compose -f docker-compose.prod.yml down
-docker run -d --name scanseo-web ghcr.io/hollow313/scanseo:sha-<précédent>
+docker run -d --name scanseo-web ghcr.io/<compte>/scanseo:sha-<précédent>
 ```
 
 Chaque push sur `main` construit et publie l'image sur GHCR
-(`ghcr.io/hollow313/scanseo:latest` et `:sha-<court>`), et sur Docker Hub si les secrets
+(`ghcr.io/<compte>/scanseo:latest` et `:sha-<court>`), et sur Docker Hub si les secrets
 `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` sont présents.
 
-### TrueNAS (deux applications distinctes)
+### Hébergement
 
-L'image tourne en **uid/gid 568**.
+Le conteneur tourne en **uid/gid 568** et attend trois volumes persistants :
 
-**App Web (`scanseo-web`)**
+| Volume | Contenu |
+|---|---|
+| `/data` | base SQLite |
+| `/reports` | rapports générés (JSON, PDF) |
+| `/content` | contenu éditorial, surchargeable sans reconstruire l'image |
 
-- Image : `ghcr.io/hollow313/scanseo:latest`
-- Port : `192.168.1.200:30023` → conteneur `3000`
-- Montages (droits `568:568`) :
-  - `/mnt/NVMe/Applications/scanseo/data` → `/data`
-  - `/mnt/NVMe/Applications/scanseo/reports` → `/reports`
-  - `/mnt/NVMe/Applications/scanseo/content` → `/content`
-- Env file : `/mnt/NVMe/Applications/scanseo/.env`
-- Ressources : 1 Go RAM
-
-**App Worker (`scanseo-worker`)**
-
-- Image : `ghcr.io/hollow313/scanseo:latest`
-- Commande : `node worker.js` (aucun port exposé)
-- Montages (droits `568:568`) :
-  - `/mnt/NVMe/Applications/scanseo/data` → `/data`
-  - `/mnt/NVMe/Applications/scanseo/reports` → `/reports`
-- Env file : `/mnt/NVMe/Applications/scanseo/.env`
-- Ressources : 1,5 Go RAM, `shm_size: 256m`
+Le service `worker` n'a besoin que des deux premiers. Prévoir 1 Go de RAM pour le web
+et 1,5 Go pour le worker (Chromium), avec `shm_size: 256m` pour ce dernier.
 
 ## Ce que le produit ne fait pas
 
