@@ -125,9 +125,9 @@ export async function prospectScan({ url, email = null, pages = 8, deliver = tru
 }
 
 const PILLARS = [
-  ['onpage', 'Contenu des pages', 30],
+  ['onpage', 'Balises on-page', 30],
   ['technique', 'Technique', 25],
-  ['contenu', 'Sémantique', 20],
+  ['contenu', 'Contenu & unicité', 20],
   ['performance', 'Performance', 15],
   ['local', 'Visibilité locale', 10],
 ];

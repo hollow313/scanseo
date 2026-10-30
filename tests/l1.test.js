@@ -372,19 +372,21 @@ test('L1 — Polar Webhook, Commandes, Audits et Emails', async (t) => {
       assert.ok(match[1].length <= 65, `Title "${match[1]}" dépasse 65 caractères (${match[1].length})`);
 
       // Labels visibles
-      assert.match(html, /<label[^>]*for="scan-url"[^>]*>URL du site<\/label>/);
+      // Libellé issu de la refonte : il doit rester explicite pour un dirigeant non technique.
+      assert.match(html, /<label[^>]*for="scan-url"[^>]*>Adresse du site<\/label>/);
       assert.match(html, /<label[^>]*for="scan-email"[^>]*>Email \(facultatif\)<\/label>/);
 
       // Cartes d'offres distinctes avec prix en gros et boutons
-      assert.match(html, /class="pricing-card"/);
-      assert.match(html, /class="pricing-card featured"/);
+      assert.match(html, /class="price-card"/);
+      assert.match(html, /class="price-card featured"/);
       assert.match(html, /49 €/);
       assert.match(html, /149 €/);
       assert.match(html, /href="\/checkout\/audit_49"/);
       assert.match(html, /href="\/checkout\/audit_149"/);
 
       // Bientôt disponible pour /api/scan
-      assert.match(html, /bientôt disponible/i);
+      // Les deux offres sont achetables : plus aucune mention « bientôt disponible ».
+      assert.doesNotMatch(html, /bientôt disponible/i);
     });
 
   } finally {

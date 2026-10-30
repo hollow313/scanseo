@@ -2,6 +2,12 @@
 
 Découvrez la structure et le niveau d'exigence d'un rapport ScanSEO complet.
 
+<div class="cta-block">
+  <p><strong>Le rapport complet, tout de suite.</strong> Pas de formulaire, pas d'email à laisser : c'est un audit réel, rendu tel qu'il est livré.</p>
+  <p><a class="btn btn-primary" href="/exemple/rapport.pdf" target="_blank" rel="noopener">Ouvrir le rapport d'exemple (PDF, 10 pages)</a></p>
+  <p class="muted">Porte sur un site de 7 pages, offre Audit SEO 49 €. Score global 83/100, 7 constats, plan d'action sur 30 jours.</p>
+</div>
+
 ## Présentation du livrable
 Chaque rapport d'audit est un document PDF au format A4 de 14 à 22 pages, imprimable et sélectionnable, contenant :
 1. **La synthèse exécutive** : le verdict en une phrase et les 5 priorités absolues.

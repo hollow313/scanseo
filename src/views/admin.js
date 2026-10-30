@@ -54,6 +54,15 @@ function adminCustomLogo() {
   return '<span class="brand">ScanSEO <span style="color:var(--muted);font-weight:500;">admin</span></span>';
 }
 
+// Libellés identiques au rapport livré : un code brut dans l'admin oblige à traduire mentalement.
+const PILLAR_LABELS = {
+  technique: 'Technique',
+  onpage: 'Balises on-page',
+  contenu: 'Contenu & unicité',
+  performance: 'Performance',
+  local: 'Visibilité locale',
+};
+
 /**
  * Bandeaux d'exploitation : ce qui casse silencieusement doit être visible
  * sur TOUTES les pages d'admin, pas seulement dans une ligne de log.
@@ -71,7 +80,10 @@ function systemAlerts() {
     }
     const lastFail = db.prepare("SELECT error, created_at FROM emails WHERE status = 'failed' ORDER BY id DESC LIMIT 1").get();
     const lastSent = db.prepare("SELECT sent_at FROM emails WHERE status = 'sent' ORDER BY id DESC LIMIT 1").get();
-    if (lastFail && (!lastSent || String(lastFail.created_at) > String(lastSent.sent_at || ''))) {
+    // Un échec ancien ne doit pas alerter si un envoi a réussi depuis : c'est le
+    // dernier état connu qui compte, pas le dernier incident.
+    const failIsRecent = lastFail && (!lastSent || String(lastFail.created_at) > String(lastSent.sent_at || ''));
+    if (failIsRecent) {
       out.push({ level: 'warn', text: `Dernier envoi d'email en échec (${lastFail.error || 'erreur SMTP'}) : les clients ne reçoivent rien. Vérifier SMTP_URL et SMTP_FROM.` });
     }
     const stuck = db.prepare("SELECT count(*) c FROM audits WHERE status IN ('pending','queued')").get().c;
@@ -97,6 +109,10 @@ function renderAdminPage({ title, active, body }) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>${escapeHtml(title)} — ScanSEO admin</title>
+  <script>
+    // Appliqué avant le premier rendu : évite le flash blanc en mode sombre.
+    try { if (localStorage.getItem('scanseo-admin-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+  </script>
   <style>
     /* Thème clair aligné sur le site public et le rapport PDF. */
     :root {
@@ -105,6 +121,21 @@ function renderAdminPage({ title, active, body }) {
       --accent:#3b5bfd; --accent-7:#eef1ff; --accent-9:#dfe5ff;
       --danger:#dc2626; --warn:#b45309; --ok:#0e9f6e;
     }
+    /* Mode sombre : mêmes composants, seules les variables changent. */
+    [data-theme="dark"] {
+      --bg:#0f1216; --panel:#171b21; --panel-2:#1d222a; --border:#2a313b;
+      --text:#e8ecf2; --ink-2:#c2cad6; --muted:#8b95a3;
+      --accent:#6f8bff; --accent-7:#1b2440; --accent-9:#26325c;
+      --danger:#f87171; --warn:#fbbf24; --ok:#34d399;
+    }
+    [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background:#12161c; color:var(--text); }
+    [data-theme="dark"] .btn.ghost { background:#171b21; }
+    [data-theme="dark"] .alert { background:#2a1618; border-color:#5b2327; border-left-color:var(--danger); color:#fca5a5; }
+    [data-theme="dark"] .alert.warn { background:#2a2110; border-color:#5c4718; color:#fcd34d; }
+    [data-theme="dark"] .alert.info { background:var(--accent-7); border-color:var(--accent-9); color:#c7d2fe; }
+    .theme-toggle { background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:9px;
+      padding:0.35rem 0.6rem; cursor:pointer; font-size:0.8rem; font-family:inherit; }
+    .theme-toggle:hover { color:var(--text); border-color:var(--accent); }
     * { box-sizing:border-box; margin:0; padding:0; }
     body { background:var(--bg); color:var(--text); font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:14px; line-height:1.55; }
     header { background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:0.65rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; position:sticky; top:0; z-index:10; }
@@ -156,11 +187,28 @@ function renderAdminPage({ title, active, body }) {
   <header>
     ${adminCustomLogo()}
     <nav>${nav}</nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Basculer entre thème clair et sombre">Mode sombre</button>
   </header>
   <main>
     ${systemAlerts().map((a) => `<div class="alert${a.level === 'danger' ? '' : ' ' + a.level}">${escapeHtml(a.text)}</div>`).join('')}
     ${body}
   </main>
+  <script>
+    (function () {
+      var btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      function label() {
+        btn.textContent = document.documentElement.dataset.theme === 'dark' ? 'Mode clair' : 'Mode sombre';
+      }
+      label();
+      btn.addEventListener('click', function () {
+        var dark = document.documentElement.dataset.theme === 'dark';
+        document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+        try { localStorage.setItem('scanseo-admin-theme', dark ? 'light' : 'dark'); } catch (e) {}
+        label();
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }
@@ -307,7 +355,7 @@ export function renderAuditDetail(data) {
 
   const findingsRows = (data.findings || []).map((f) => `<tr>
     <td><code>${escapeHtml(f.code)}</code></td>
-    <td>${escapeHtml(f.pillar)}</td>
+    <td>${escapeHtml(PILLAR_LABELS[f.pillar] || f.pillar)}</td>
     <td>${escapeHtml(f.severity)}</td>
     <td>${escapeHtml(f.evidence || '')}</td>
     <td>${f.deterministic ? 'code' : 'LLM'}</td>
@@ -333,6 +381,7 @@ export function renderAuditDetail(data) {
         <tr><td class="muted">Durée</td><td>${a.duration_ms != null ? `${(a.duration_ms / 60000).toFixed(1)} min` : '—'}</td></tr>
         <tr><td class="muted">Activité / Ville</td><td>${escapeHtml(a.activity || '—')} / ${escapeHtml(a.city || '—')}</td></tr>
         <tr><td class="muted">Créé le</td><td>${escapeHtml(a.created_at)}</td></tr>
+        <tr><td class="muted">Livraison</td><td>${escapeHtml(data.deliveryTo || '—')}</td></tr>
       </table>
       <div class="actions" style="margin-top:0.75rem;">
         <a class="btn ghost" href="/admin/audits/${escapeHtml(a.id)}/pdf">Télécharger le PDF</a>

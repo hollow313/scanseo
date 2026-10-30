@@ -182,6 +182,9 @@ function sameSiteHost(a, b) {
 function isInternalHref(href, host) {
   if (!href) return false;
   if (/^(mailto:|tel:|javascript:|data:|#|ftp:|file:)/i.test(href)) return false;
+  // « licence@exemple.fr » rendu cliquable n'est pas une URL relative : c'est une
+  // adresse email. Sans ce garde-fou, le crawl fabrique une page 404 fantôme.
+  if (href.includes('@') && !/^https?:\/\//i.test(href)) return false;
   let u;
   try { u = new URL(href, 'https://scanseo.invalid/'); } catch { return false; }
   if (u.hostname === 'scanseo.invalid') return true; // relatif

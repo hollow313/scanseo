@@ -197,7 +197,16 @@ router.get('/audits/:id', (req, res) => {
 
   const reportJson = readReportJson(audit);
 
-  res.status(200).send(renderAuditDetail({ audit, pages, findings, errors, reportJson }));
+  // À qui le rapport a-t-il été envoyé ? Sans acheteur (audit créé à la main), le
+  // rapport part vers l'adresse de contact : il faut le voir, pas le deviner.
+  const buyer = audit.order_id
+    ? db.prepare('SELECT email FROM orders WHERE id = ?').get(audit.order_id)
+    : null;
+  const deliveryTo = buyer?.email
+    ? buyer.email
+    : `${config.contactEmail} (adresse de contact — aucun acheteur rattaché)`;
+
+  res.status(200).send(renderAuditDetail({ audit, pages, findings, errors, reportJson, deliveryTo }));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -423,11 +432,16 @@ router.get('/system', (req, res) => {
   const lastFail = db.prepare(`
     SELECT error, created_at FROM emails WHERE status = 'failed' ORDER BY id DESC LIMIT 1
   `).get();
+  const lastSentRow = db.prepare(`
+    SELECT sent_at FROM emails WHERE status = 'sent' ORDER BY id DESC LIMIT 1
+  `).get();
+  // Un incident résolu ne s'affiche plus : seul compte l'échec encore en vigueur.
+  const failActive = lastFail && (!lastSentRow || String(lastFail.created_at) > String(lastSentRow.sent_at || ''));
 
   const contentState = listContentDirs();
 
   res.status(200).send(renderSystem({
-    mailError: lastFail ? { error: lastFail.error, at: lastFail.created_at } : null,
+    mailError: failActive ? { error: lastFail.error, at: lastFail.created_at } : null,
     mailResult: req.query.mail || null,
     mailResultMsg: req.query.msg || null,
     version: '0.1.0',

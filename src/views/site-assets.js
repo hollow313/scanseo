@@ -27,6 +27,22 @@ const FONT_RE = /^[a-z0-9-]+\.woff2$/;
 
 export const siteAssetsRouter = express.Router();
 
+// Image sociale (Open Graph) et favicon : sans elles, un partage sur LinkedIn
+// ou WhatsApp n'affiche aucun visuel et le site paraît abandonné.
+siteAssetsRouter.get('/apercu-rapport.png', (req, res) => {
+  const file = path.join(TEMPLATES_DIR, 'apercu-rapport.png');
+  if (!fs.existsSync(file)) return res.status(404).send('Not Found');
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.sendFile(file);
+});
+
+siteAssetsRouter.get('/favicon.svg', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=604800');
+  res.send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#3b5bfd"/><circle cx="32" cy="32" r="12" fill="#fff"/></svg>');
+});
+
 // Feuille de style du site (contenu statique, cache court pour permettre les
 // mises à jour sans purge manuelle).
 siteAssetsRouter.get('/site.css', (req, res) => {

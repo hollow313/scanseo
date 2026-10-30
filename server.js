@@ -17,6 +17,21 @@ const db = getDb();
 
 const app = express();
 
+// Rapport d'exemple : un vrai audit, consultable sans laisser son email.
+app.get('/exemple/rapport.pdf', (req, res) => {
+  const candidates = [
+    path.join(config.contentDir, 'exemple', 'rapport.pdf'),
+    path.join(process.cwd(), 'src', 'embedded_content', 'exemple-rapport.pdf'),
+  ];
+  const file = candidates.find((f) => fs.existsSync(f));
+  if (!file) return res.status(404).send('Exemple indisponible');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'inline; filename="exemple-rapport-audit-seo-scanseo.pdf"');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  fs.createReadStream(file).pipe(res);
+});
+
+
 // Middleware corps brut pour Polar webhook (spécifié 03 §3.1 - impératif avant express.json)
 app.post('/webhook/polar', express.raw({ type: '*/*' }), handlePolarWebhook);
 
@@ -28,6 +43,12 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  // HSTS : après la première visite en HTTPS, le navigateur ne repasse plus par
+  // http:// — c'est la seule façon d'empêcher un visiteur de tomber sur une
+  // version servie en clair par erreur.
+  if (req.secure || String(req.headers['x-forwarded-proto'] || '').includes('https')) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });

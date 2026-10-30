@@ -31,18 +31,20 @@ const SEVERITY = {
 };
 
 // Ordre d'affichage = gabarit B (on-page en tête, poids 30).
+// Les libellés doivent décrire ce que le pilier MESURE, sinon le rapport se
+// contredit : « onpage » note les title/meta/H1, « contenu » l'unicité des textes.
 const PILLARS = [
-  { code: 'onpage',      label: 'Contenu des pages', weight: 30 },
+  { code: 'onpage',      label: 'Balises on-page',    weight: 30 },
   { code: 'technique',   label: 'Technique',          weight: 25 },
-  { code: 'contenu',     label: 'Sémantique',         weight: 20 },
+  { code: 'contenu',     label: 'Contenu & unicité',  weight: 20 },
   { code: 'performance', label: 'Performance',        weight: 15 },
   { code: 'local',       label: 'Visibilité locale',  weight: 10 },
 ];
 
 const PILLAR_LABELS = {
   technique: 'Technique',
-  onpage: 'On-page',
-  contenu: 'Contenu',
+  onpage: 'Balises on-page',
+  contenu: 'Contenu & unicité',
   performance: 'Performance',
   local: 'Local & confiance',
 };
