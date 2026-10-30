@@ -96,10 +96,11 @@ export async function processAudit(audit) {
     if (report) {
       log(audit, 'rédaction', 'reprise depuis rapport.json');
     } else {
-      log(audit, 'rédaction', `appel ${config.deepseekModelPaid}`);
+      const model = audit.offer === 'audit_149' ? config.deepseekModel149 : config.deepseekModel49;
+      log(audit, 'rédaction', `appel ${model}`);
       const out = await analyze(facts, {
         offer: audit.offer,
-        model: config.deepseekModelPaid,
+        model,
         fallbackFindings: checks.findings,
       });
       report = out.report;
@@ -116,7 +117,7 @@ export async function processAudit(audit) {
       log(audit, 'rendu', 'reprise depuis rapport.pdf');
     } else {
       log(audit, 'rendu', 'génération du PDF');
-      pdf = await renderPdf(report, facts, { outPath: pdfPath });
+      pdf = await renderPdf(report, facts, { outPath: pdfPath, offer: audit.offer });
       if (pdf.warnings?.length) log(audit, 'rendu', pdf.warnings.join(' | '));
     }
 

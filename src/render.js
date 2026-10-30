@@ -144,7 +144,7 @@ const secHead = (kicker, title, lead = '') =>
 // ---------------------------------------------------------------------------
 // Sections
 // ---------------------------------------------------------------------------
-function coverPage(report, facts) {
+function coverPage(report, facts, offer = 'audit_49') {
   const site = facts?.site || {};
   const score = facts?.score || {};
   const counts = score.counts || {};
@@ -195,7 +195,9 @@ function coverPage(report, facts) {
     Aucune garantie de position, de trafic ou de délai de progression n'est associée à ce document.</div>
   </div>
   <div class="cv-foot">
-    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · Offre Audit SEO · 25 pages maximum</span>
+    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · ${offer === 'audit_149'
+      ? 'Offre Audit Complet · 100 pages maximum'
+      : 'Offre Audit SEO · 25 pages maximum'}</span>
     <span>${EDITOR.name} · ${EDITOR.contact}</span>
   </div>
   ${pageNum()}
@@ -350,7 +352,36 @@ function shortPage(url) {
   catch { return url || 'Accueil'; }
 }
 
-function planPage(report, facts) {
+
+/**
+ * Offre 149 € : les pages entièrement rédigées. Elles étaient générées et
+ * facturées mais jamais imprimées — le client payait trois fois le prix de
+ * l'offre 49 € pour le même PDF.
+ */
+function pagesRedigeesPage(report, facts) {
+  const host = facts?.site?.host || '';
+  const cards = (report.pages_redigees || []).map((pg) => `
+    <div class="pcard" style="margin-bottom:5mm">
+      <div class="h"><span class="w">${esc(pg.page || 'Page')}</span><h4>${esc(pg.title || pg.titre || '')}</h4></div>
+      ${pg.h1 ? `<p style="font-size:8.6pt;font-weight:600;color:var(--ink);margin-bottom:1.6mm">H1 — ${esc(pg.h1)}</p>` : ''}
+      ${pg.chapo ? `<p style="font-size:8.2pt;color:var(--ink-2);margin-bottom:1.6mm">${esc(pg.chapo)}</p>` : ''}
+      ${(pg.h2 || []).length ? `<ul>${pg.h2.map((h) => `<li>${esc(typeof h === 'string' ? h : h.title || h.titre || '')}</li>`).join('')}</ul>` : ''}
+      ${(pg.faq || []).length ? `<div style="margin-top:2mm"><p style="font-size:7.4pt;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1mm">FAQ</p>
+        <ul>${pg.faq.map((f) => `<li>${esc(typeof f === 'string' ? f : f.q || f.question || '')}</li>`).join('')}</ul></div>` : ''}
+      ${pg.cta ? `<p style="font-size:8.2pt;margin-top:2mm"><strong>Appel à l'action :</strong> ${esc(pg.cta)}</p>` : ''}
+    </div>`).join('');
+
+  return `<section class="page">
+  ${topBar(host)}
+  ${secHead('06 · Pages rédigées', 'À publier telles quelles')}
+  <div class="plan" style="grid-template-columns:1fr">${cards}</div>
+  <div class="note" style="margin-top:6mm">Ces textes tiennent compte de votre activité et de vos pages existantes.
+  Relisez-les pour vérifier les éléments factuels (horaires, tarifs, zones) avant publication.</div>
+  ${pageNum()}
+</section>`;
+}
+
+function planPage(report, facts, offer = 'audit_49') {
   const host = facts?.site?.host || '';
   const cards = (report.plan_30_jours || []).map((w) => `
     <div class="pcard"><div class="h"><span class="w">S${esc(w.semaine ?? '')}</span><h4>${esc(w.theme || '')}</h4></div>
@@ -358,7 +389,7 @@ function planPage(report, facts) {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead('05 · Plan d\'action', 'Les 30 prochains jours')}
+  ${secHead('05 · Plan d\'action', offer === 'audit_149' ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
   <div class="plan">${cards}</div>
   <div class="note" style="margin-top:7mm">Une fois les corrections faites, relancez un audit : le score doit refléter les changements.
   Aucune progression de position ne peut être garantie ni datée.</div>
@@ -472,13 +503,15 @@ function hash(s) {
 // ---------------------------------------------------------------------------
 function buildPages(report, facts, opts = {}) {
   const perPage = opts.constatsPerPage || 3;
+  const offer = opts.offer || 'audit_49';
   const pages = [
-    coverPage(report, facts),
+    coverPage(report, facts, offer),
     synthesePage(report, facts),
     scoresPage(report, facts),
     ...constatsPages(report, facts, perPage),
     textesPage(report, facts),
-    planPage(report, facts),
+    ...(offer === 'audit_149' && report.pages_redigees?.length ? [pagesRedigeesPage(report, facts)] : []),
+    planPage(report, facts, offer),
     suiviPage(report, facts),
     ...annexePages(facts),
   ];
@@ -536,7 +569,7 @@ export async function resolveChromiumPath() {
 // ---------------------------------------------------------------------------
 // renderPdf
 // ---------------------------------------------------------------------------
-export async function renderPdf(report, facts, { outPath }) {
+export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) {
   const warnings = [];
 
   // 1. Vérification d'arithmétique du score (ne jamais afficher un score faux).

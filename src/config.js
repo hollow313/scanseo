@@ -28,6 +28,10 @@ export const config = {
   publicBaseUrl: process.env.PUBLIC_BASE_URL || 'https://scanseo.fr',
   deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
   deepseekModelPaid: process.env.DEEPSEEK_MODEL_PAID || 'deepseek-v4-pro',
+  // Le gros du travail est déterministe (66 contrôles calculés) : le modèle
+  // n'écrit que la mise en mots. Flash suffit pour l'offre 49 €.
+  deepseekModel49: process.env.DEEPSEEK_MODEL_49 || 'deepseek-flash',
+  deepseekModel149: process.env.DEEPSEEK_MODEL_149 || process.env.DEEPSEEK_MODEL_PAID || 'deepseek-v4-pro',
   deepseekModelFree: process.env.DEEPSEEK_MODEL_FREE || 'deepseek-flash',
   pagespeedApiKey: process.env.PAGESPEED_API_KEY || '',
   polarWebhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
