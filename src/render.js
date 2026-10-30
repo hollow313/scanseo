@@ -373,7 +373,7 @@ function pagesRedigeesPage(report, facts) {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead('06 · Pages rédigées', 'À publier telles quelles')}
+  ${secHead('05 · Pages rédigées', 'À publier telles quelles')}
   <div class="plan" style="grid-template-columns:1fr">${cards}</div>
   <div class="note" style="margin-top:6mm">Ces textes tiennent compte de votre activité et de vos pages existantes.
   Relisez-les pour vérifier les éléments factuels (horaires, tarifs, zones) avant publication.</div>
@@ -381,7 +381,7 @@ function pagesRedigeesPage(report, facts) {
 </section>`;
 }
 
-function planPage(report, facts, offer = 'audit_49') {
+function planPage(report, facts, offer = 'audit_49', shift = 0) {
   const host = facts?.site?.host || '';
   const cards = (report.plan_30_jours || []).map((w) => `
     <div class="pcard"><div class="h"><span class="w">S${esc(w.semaine ?? '')}</span><h4>${esc(w.theme || '')}</h4></div>
@@ -389,7 +389,7 @@ function planPage(report, facts, offer = 'audit_49') {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead('05 · Plan d\'action', (report.plan_30_jours || []).length >= 8 ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
+  ${secHead(`${5 + shift} · Plan d\'action`, (report.plan_30_jours || []).length >= 8 ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
   <div class="plan">${cards}</div>
   <div class="note" style="margin-top:7mm">Une fois les corrections faites, relancez un audit : le score doit refléter les changements.
   Aucune progression de position ne peut être garantie ni datée.</div>
@@ -397,18 +397,18 @@ function planPage(report, facts, offer = 'audit_49') {
 </section>`;
 }
 
-function suiviPage(report, facts) {
+function suiviPage(report, facts, shift = 0) {
   const host = facts?.site?.host || '';
   const steps = (report.a_verifier_dans_search_console || []).map((s, i) =>
     `<div class="s"><div class="n">${i + 1}</div><p>${esc(s)}</p></div>`).join('');
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead('06 · Search Console', 'Les données que cet audit ne mesure pas',
+  ${secHead(`${6 + shift} · Search Console`, 'Les données que cet audit ne mesure pas',
     'Trois vérifications, avec le chemin de clic exact, pour consulter vous-même les chiffres qui demandent un accès propriétaire.')}
   <div class="steps">${steps || '<p style="font-size:9pt;color:var(--ink-3)">—</p>'}</div>
 
-  <div class="sec" style="margin-top:9mm"><div class="kicker">07 · Méthode & limites</div><h2>Ce qui a été vérifié</h2></div>
+  <div class="sec" style="margin-top:9mm"><div class="kicker">${7 + shift} · Méthode & limites</div><h2>Ce qui a été vérifié</h2></div>
   <div class="two">
     <div><div class="kicker">Ce que cet audit ne mesure pas</div>
       <p style="font-size:8.8pt">${esc(report.limites || '')}</p></div>
@@ -504,6 +504,9 @@ function hash(s) {
 function buildPages(report, facts, opts = {}) {
   const perPage = opts.constatsPerPage || 3;
   const offer = opts.offer || 'audit_49';
+  // La section des pages rédigées décale la numérotation des chapitres suivants :
+  // sans cela le PDF affichait 04, 06, 05, 06 — indigne d'un document payant.
+  const hasPages = offer === 'audit_149' && !!report.pages_redigees?.length;
   const pages = [
     coverPage(report, facts, offer),
     synthesePage(report, facts),
@@ -511,8 +514,8 @@ function buildPages(report, facts, opts = {}) {
     ...constatsPages(report, facts, perPage),
     textesPage(report, facts),
     ...(offer === 'audit_149' && report.pages_redigees?.length ? [pagesRedigeesPage(report, facts)] : []),
-    planPage(report, facts, offer),
-    suiviPage(report, facts),
+    planPage(report, facts, offer, hasPages ? 1 : 0),
+    suiviPage(report, facts, hasPages ? 1 : 0),
     ...annexePages(facts),
   ];
   const total = pages.length;
@@ -572,7 +575,7 @@ export async function resolveChromiumPath() {
 // Toute modification du gabarit incrémente cette version : le pipeline s'en sert
 // pour savoir si le PDF sur disque est à jour. Sans elle, « Relancer » réutilisait
 // le PDF existant et le client recevait l'ancienne mise en page indéfiniment.
-export const RENDER_VERSION = '3';
+export const RENDER_VERSION = '4';
 
 export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) {
   const warnings = [];
