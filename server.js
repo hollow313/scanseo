@@ -103,11 +103,13 @@ app.get('/assets/img/:filename(*)', (req, res) => {
 app.get('/checkout/:offer', (req, res) => {
   const offer = req.params.offer;
   let productId = null;
-  if (offer === 'audit_49') {
-    productId = config.polarProduct49;
-  } else if (offer === 'audit_149') {
-    productId = config.polarProduct149;
-  }
+  const POLAR_PRODUCTS = {
+    audit_29: config.polarProduct29,
+    audit_59: config.polarProduct59,
+    audit_49: config.polarProduct49,
+    audit_149: config.polarProduct149,
+  };
+  productId = POLAR_PRODUCTS[offer] || null;
 
   if (!productId) {
     return res.status(404).send('Offre inconnue');
@@ -176,7 +178,7 @@ for (const slug of publicPages) {
     // Descriptions rédigées : le repli générique tombait à 28–31 caractères, très en
     // dessous des 120–165 recommandés — sur un site qui vend des audits SEO.
     const descriptions = {
-      tarifs: "Deux offres, un paiement unique : audit complet à 49 € TTC (25 pages) ou 149 € TTC (100 pages), rapport PDF et plan d'action livrés par email sous 15 minutes.",
+      tarifs: "Deux offres, un paiement unique : audit à 29 € TTC (25 pages) ou audit complet à 59 € TTC (100 pages, re-audit inclus), rapport PDF et plan d'action livrés par email sous 15 minutes.",
       faq: "Délai de livraison, pages analysées, données conservées, remboursement, garanties : les réponses aux questions les plus fréquentes sur l'audit SEO automatisé.",
       exemple: "Un rapport d'audit réel anonymisé : score par pilier, constats mesurés page par page, textes prêts à coller et plan d'action sur 30 jours. Voyez ce que vous recevez.",
       'mentions-legales': "Éditeur, hébergeur et responsable de publication de scanseo.fr, avec les informations légales de l'entreprise individuelle Loïc Huon (SIREN 853 658 375).",

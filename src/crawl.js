@@ -355,7 +355,7 @@ export async function collect(audit, { onProgress } = {}) {
   const rawUrl = audit.url;
   const host = (audit.host || hostOf(rawUrl) || '').toLowerCase();
   const offer = audit.offer || 'audit_49';
-  const maxPages = offer === 'audit_149' ? 100 : offer === 'audit_49' ? 25 : 5;
+  const maxPages = offer && offer !== 'teaser' ? maxPagesFor(offer) : 5;
   const lang = audit.lang || 'fr';
   const activity = String(audit.activity || '');
   const city = String(audit.city || '');

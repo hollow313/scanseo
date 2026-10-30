@@ -163,7 +163,11 @@ async function handlePolarWebhookInner(req, res) {
 
     // Détermination de l'offre
     let offer = null;
-    if (productId && productId === config.polarProduct49) {
+    if (productId && productId === config.polarProduct29) {
+      offer = 'audit_29';
+    } else if (productId && productId === config.polarProduct59) {
+      offer = 'audit_59';
+    } else if (productId && productId === config.polarProduct49) {
       offer = 'audit_49';
     } else if (productId && productId === config.polarProduct149) {
       offer = 'audit_149';

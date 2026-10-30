@@ -395,7 +395,7 @@ router.post('/create', async (req, res) => {
   const body = req.body || {};
   const email = typeof body.email === 'string' ? body.email.trim() : '';
   const rawSite = typeof body.site === 'string' ? body.site : '';
-  const offer = body.offer === 'audit_149' ? 'audit_149' : 'audit_49';
+  const offer = ['audit_29', 'audit_59', 'audit_49', 'audit_149'].includes(body.offer) ? body.offer : 'audit_29';
 
   if (!rawSite.trim()) {
     return res.status(400).send(renderCreateAudit({ error: 'Le site est requis.', email, site: rawSite, offer }));

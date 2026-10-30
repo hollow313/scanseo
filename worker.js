@@ -58,7 +58,62 @@ function claim() {
 // bloque la boucle plusieurs minutes (crawl + LLM + PDF), ce qui faisait croire à un
 // worker mort alors qu'il travaillait. Un audit de 6 minutes déclenchait l'alerte.
 const beatTimer = setInterval(heartbeat, 15000);
+setTimeout(() => { sendReauditReminders().catch((e) => console.error('[scanseo-worker] rappels:', e.message)); }, 120000);
+const reminderTimer = setInterval(() => {
+  sendReauditReminders().catch((e) => console.error('[scanseo-worker] rappels:', e.message));
+}, 6 * 60 * 60 * 1000);
+if (typeof reminderTimer.unref === 'function') reminderTimer.unref();
 if (typeof beatTimer.unref === 'function') beatTimer.unref();
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rappel de re-audit : 10 jours avant l'expiration du délai de 90 jours
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Envoie un rappel aux clients dont l'offre complète inclut un re-audit et dont
+ * le délai arrive à échéance. Idempotent : `reaudit_reminded_at` empêche tout
+ * second envoi, même après un redémarrage du conteneur.
+ */
+async function sendReauditReminders() {
+  const { hasReaudit } = await import('./src/offers.js');
+  const { sendEmail } = await import('./src/mail.js');
+  const { renderReauditReminderEmail } = await import('./src/templates/emails.js');
+
+  const rows = db.prepare(`
+    SELECT a.*, (SELECT email FROM orders o WHERE o.id = a.order_id) AS buyer_email
+    FROM audits a
+    WHERE a.status = 'done'
+      AND a.finished_at IS NOT NULL
+      AND a.reaudit_reminded_at IS NULL
+      AND datetime(a.finished_at) <= datetime('now', '-80 days')
+      AND datetime(a.finished_at) >= datetime('now', '-90 days')
+      AND NOT EXISTS (SELECT 1 FROM audits c WHERE c.parent_audit_id = a.id)
+  `).all();
+
+  for (const audit of rows) {
+    if (!hasReaudit(audit.offer)) continue;
+    const to = audit.buyer_email || config.reauditFallbackEmail;
+    if (!to) continue;
+    const daysLeft = Math.max(1, 90 - Math.floor((Date.now() - new Date(audit.finished_at).getTime()) / 86_400_000));
+    const base = (config.publicBaseUrl || 'https://scanseo.fr').replace(/\/$/, '');
+    const { subject, text, html } = renderReauditReminderEmail({
+      token: audit.token,
+      auditUrl: `${base}/audit/${audit.token}`,
+      siteUrl: audit.url,
+      daysLeft,
+      score: audit.score,
+    });
+    try {
+      const sent = await sendEmail({ to, kind: 'reaudit_reminder', subject, text, html, auditId: audit.id });
+      if (sent?.ok) {
+        db.prepare('UPDATE audits SET reaudit_reminded_at = ? WHERE id = ?').run(new Date().toISOString(), audit.id);
+        console.log(`[scanseo-worker] rappel re-audit envoyé pour ${audit.id.slice(0, 8)} (J-${daysLeft})`);
+      }
+    } catch (err) {
+      console.error(`[scanseo-worker] rappel re-audit impossible (${audit.id.slice(0, 8)}): ${err.message}`);
+    }
+  }
+}
 
 async function loop() {
   heartbeat();

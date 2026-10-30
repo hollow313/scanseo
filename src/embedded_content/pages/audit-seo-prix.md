@@ -1,6 +1,6 @@
 # Combien coûte un audit SEO en France ?
 
-Un audit SEO coûte entre **49 € et plusieurs milliers d'euros** selon qui le réalise et ce qu'il contient. La question n'est donc pas « combien », mais « pour quoi faire ». Voici les quatre niveaux de prix que vous rencontrerez, ce qu'ils incluent réellement, et comment savoir lequel correspond à votre besoin.
+Un audit SEO coûte entre **29 € et plusieurs milliers d'euros** selon qui le réalise et ce qu'il contient. La question n'est donc pas « combien », mais « pour quoi faire ». Voici les quatre niveaux de prix que vous rencontrerez, ce qu'ils incluent réellement, et comment savoir lequel correspond à votre besoin.
 
 ## Les quatre niveaux de prix
 
@@ -8,7 +8,7 @@ Un audit SEO coûte entre **49 € et plusieurs milliers d'euros** selon qui le 
 
 Des plateformes comme Semrush, Seobility ou SEOptimer proposent un audit technique par abonnement. Vous obtenez une liste de problèmes, souvent en anglais, sans rédaction ni priorisation. Le coût réel est votre temps : il faut comprendre chaque alerte, puis la corriger. C'est le bon choix si vous êtes déjà à l'aise avec le référencement.
 
-### 2. L'audit automatisé avec rédaction — 49 à 150 € en paiement unique
+### 2. L'audit automatisé avec rédaction — 29 à 150 € en paiement unique
 
 C'est notre positionnement. Le crawl est automatisé, mais le livrable ne l'est pas : un rapport PDF en français, un score par pilier, et surtout **les balises title, meta description et H1 rédigées**, prêtes à coller. Aucun abonnement, aucun compte à créer. Vous payez une fois, vous recevez un document que vous appliquez vous-même.
 
@@ -36,24 +36,24 @@ Un rapport qui ne vous dit pas quoi faire ne vaut rien. Vérifiez trois choses a
 
 Deux offres, un paiement unique, aucune reconduction :
 
-- **Audit SEO — 49 € TTC** : jusqu'à 25 pages, 66 contrôles, rapport PDF avec les balises rédigées et un plan d'action sur 30 jours ;
-- **Audit Complet — 149 € TTC** : jusqu'à 100 pages, plan sur 90 jours, et **deux pages entièrement rédigées** (H1, chapô, H2, FAQ, appel à l'action).
+- **Audit SEO — 29 € TTC** : jusqu'à 25 pages, 66 contrôles, rapport PDF avec les balises rédigées et un plan d'action sur 30 jours ;
+- **Audit complet — 59 € TTC** : jusqu'à 100 pages, plan sur 90 jours, **deux pages entièrement rédigées** (H1, chapô, H2, FAQ, appel à l'action) et **re-audit de contrôle gratuit sous 90 jours**.
 
 TVA non applicable, art. 293 B du CGI. Livraison par email sous 15 minutes, rapport consultable en ligne pendant douze mois.
 
 ## Questions fréquentes
 
-### Un audit à 49 € vaut-il un audit à 1 000 € ?
+### Un audit à 29 € vaut-il un audit à 1 000 € ?
 
 Non, et personne ne prétend le contraire. Un audit automatisé détecte les problèmes mesurables — balises, structure, vitesse, duplication — et rédige les corrections. Un consultant ajoute l'analyse concurrentielle, la lecture de vos données réelles et l'accompagnement. Si votre site a moins de 50 pages et un problème de balises, l'automatisé suffit.
 
 ### Pourquoi payer alors que des outils gratuits existent ?
 
-Les outils gratuits vous donnent des alertes. Ils ne les priorisent pas, ne les expliquent pas en français et n'écrivent pas vos balises. Vous échangez 49 € contre plusieurs heures de travail.
+Les outils gratuits vous donnent des alertes. Ils ne les priorisent pas, ne les expliquent pas en français et n'écrivent pas vos balises. Vous échangez 29 € contre plusieurs heures de travail.
 
 ### Que se passe-t-il si mon site a plus de 100 pages ?
 
-L'offre à 149 € couvre 100 pages. Au-delà, le rapport analyse les 100 pages les plus importantes et signale les pages non couvertes.
+L'offre à 59 € couvre 100 pages. Au-delà, le rapport analyse les 100 pages les plus importantes et signale les pages non couvertes.
 
 ### Y a-t-il un abonnement caché ?
 

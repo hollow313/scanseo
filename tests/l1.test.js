@@ -380,10 +380,10 @@ test('L1 — Polar Webhook, Commandes, Audits et Emails', async (t) => {
       assert.match(html, /class="price-card"/);
       assert.match(html, /class="price-card featured"/);
       // L'espace insécable est légitime dans un prix : on ne teste pas le caractère.
-      assert.match(html, /49(?:&nbsp;|\u00a0|\s)*€/);
-      assert.match(html, /149(?:&nbsp;|\u00a0|\s)*€/);
-      assert.match(html, /href="\/checkout\/audit_49"/);
-      assert.match(html, /href="\/checkout\/audit_149"/);
+      assert.match(html, /29(?:&nbsp;|\u00a0|\s)*€/);
+      assert.match(html, /59(?:&nbsp;|\u00a0|\s)*€/);
+      assert.match(html, /href="\/checkout\/audit_29"/);
+      assert.match(html, /href="\/checkout\/audit_59"/);
 
       // Bientôt disponible pour /api/scan
       // Les deux offres sont achetables : plus aucune mention « bientôt disponible ».

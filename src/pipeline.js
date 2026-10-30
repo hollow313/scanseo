@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from './config.js';
+import { isPremium } from './offers.js';
 import { getDb } from './db.js';
 import { sendEmail, sendAdminAlert } from './mail.js';
 
@@ -96,7 +97,7 @@ export async function processAudit(audit) {
     if (report) {
       log(audit, 'rédaction', 'reprise depuis rapport.json');
     } else {
-      const model = audit.offer === 'audit_149' ? config.deepseekModel149 : config.deepseekModel49;
+      const model = isPremium(audit.offer) ? config.deepseekModel149 : config.deepseekModel29;
       log(audit, 'rédaction', `appel ${model}`);
       const out = await analyze(facts, {
         offer: audit.offer,

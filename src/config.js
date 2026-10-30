@@ -31,10 +31,15 @@ export const config = {
   // Le gros du travail est déterministe (66 contrôles calculés) : le modèle
   // n'écrit que la mise en mots. Flash suffit pour l'offre 49 €.
   deepseekModel49: process.env.DEEPSEEK_MODEL_49 || 'deepseek-flash',
+  deepseekModel29: process.env.DEEPSEEK_MODEL_29 || 'deepseek-flash',
   deepseekModel149: process.env.DEEPSEEK_MODEL_149 || process.env.DEEPSEEK_MODEL_PAID || 'deepseek-v4-pro',
   deepseekModelFree: process.env.DEEPSEEK_MODEL_FREE || 'deepseek-flash',
   pagespeedApiKey: process.env.PAGESPEED_API_KEY || '',
   polarWebhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
+  polarProduct29: process.env.POLAR_PRODUCT_29 || '',
+  // Repli si la commande d'origine n'a pas d'email : le rappel part vers le contact.
+  reauditFallbackEmail: process.env.REAUDIT_FALLBACK_EMAIL || process.env.CONTACT_EMAIL || '',
+  polarProduct59: process.env.POLAR_PRODUCT_59 || '',
   polarProduct49: process.env.POLAR_PRODUCT_49 || '',
   // liens de checkout Polar (publics). Surchargeables par env.
   polarCheckout49: process.env.POLAR_CHECKOUT_49 || 'https://buy.polar.sh/polar_cl_k4QjhXH3YH57cuhcG06VhC0mWL5lH1Rp4qqOI2hzLsw',

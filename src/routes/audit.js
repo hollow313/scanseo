@@ -4,7 +4,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { config } from '../config.js';
 import { getDb } from '../db.js';
-import { verifyAuditToken } from '../token.js';
+import { verifyAuditToken, generateAuditToken } from '../token.js';
+import { hasReaudit } from '../offers.js';
 import { renderClientAudit, renderAuditNotFound } from '../views/client.js';
 
 export const router = Router();
@@ -24,6 +25,11 @@ function findAuditByToken(token) {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/:token', (req, res) => {
   const audit = findAuditByToken(req.params.token);
+  if (audit) {
+    // Le re-audit déjà lancé remplace le bouton par un lien vers le nouveau rapport.
+    const child = getDb().prepare('SELECT token FROM audits WHERE parent_audit_id = ?').get(audit.id);
+    if (child) audit.reaudit_child_token = child.token;
+  }
   if (!audit) {
     return res.status(404).send(renderAuditNotFound());
   }
@@ -90,6 +96,59 @@ router.post('/:token/brief', (req, res) => {
   // PRG : re-render de la page avec confirmation.
   const updated = db.prepare('SELECT * FROM audits WHERE id = ?').get(audit.id);
   return res.status(200).send(renderClientAudit(updated, { briefJustSaved: true }));
+});
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /audit/:token/relance — re-audit de contrôle (offre complète, 90 jours)
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Le re-audit est inclus dans l'offre complète et déclenché depuis l'espace client
+ * ou depuis l'email de rappel. Aucun paiement, aucun compte : le token signé du
+ * rapport fait foi. Une seule relance par audit, dans les 90 jours suivant la
+ * livraison, pour éviter qu'un lien partagé ne serve à générer des audits à l'infini.
+ */
+router.post('/:token/relance', (req, res) => {
+  const parent = findAuditByToken(req.params.token);
+  if (!parent) return res.status(404).send(renderAuditNotFound());
+
+  if (!hasReaudit(parent.offer)) {
+    return res.status(403).send('Le re-audit est inclus dans l\'offre complète uniquement.');
+  }
+  if (parent.status !== 'done' || !parent.finished_at) {
+    return res.status(409).send('Le re-audit sera possible une fois le rapport livré.');
+  }
+
+  const days = (Date.now() - new Date(parent.finished_at).getTime()) / 86_400_000;
+  if (days > 90) {
+    return res.status(410).send('Le re-audit est valable 90 jours après la livraison. Ce délai est dépassé.');
+  }
+
+  const db = getDb();
+  const existing = db.prepare('SELECT token FROM audits WHERE parent_audit_id = ?').get(parent.id);
+  if (existing) {
+    return res.redirect(302, `/audit/${existing.token}?relance=deja`);
+  }
+
+  const auditId = crypto.randomUUID();
+  const token = generateAuditToken(auditId);
+  const now = new Date().toISOString();
+
+  db.transaction(() => {
+    db.prepare(`
+      INSERT INTO audits (id, order_id, parent_audit_id, token, url, host, offer, lang, activity, city,
+                          status, created_at)
+      VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?)
+    `).run(auditId, parent.id, token, parent.url, parent.host, parent.offer, parent.lang || 'fr',
+           parent.activity || null, parent.city || null, now);
+    db.prepare(`
+      INSERT INTO events (provider, webhook_id, type, payload, status, received_at, processed_at)
+      VALUES ('internal', ?, 'reaudit', ?, 'processed', ?, ?)
+    `).run(`reaudit:${auditId}:${crypto.randomUUID()}`,
+           JSON.stringify({ audit_id: auditId, parent_id: parent.id }), now, now);
+  })();
+
+  return res.redirect(302, `/audit/${token}?relance=nouveau`);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -32,7 +32,7 @@
   <div class="stats">
     <div class="stat"><div class="num">66</div><div class="lbl">contrôles vérifiés</div></div>
     <div class="stat"><div class="num">15 min</div><div class="lbl">pour recevoir le rapport</div></div>
-    <div class="stat"><div class="num">49 €</div><div class="lbl">audit à partir de</div></div>
+    <div class="stat"><div class="num">29 €</div><div class="lbl">audit à partir de</div></div>
     <div class="stat"><div class="num">0</div><div class="lbl">abonnement, sans engagement</div></div>
   </div>
 </section>
@@ -113,7 +113,7 @@
   <div class="pricing">
     <div class="price-card">
       <div class="price-name">Audit SEO</div>
-      <div class="price-amount"><span class="num">49&nbsp;€</span><span class="cur">TTC</span></div>
+      <div class="price-amount"><span class="num">29&nbsp;€</span><span class="cur">TTC</span></div>
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse complète jusqu'à 25 pages</li>
@@ -123,12 +123,12 @@
         <li>Vérification Search Console pas à pas</li>
         <li>Livraison sous 15 minutes par email</li>
       </ul>
-      <a href="/checkout/audit_49" class="btn btn-secondary">Commander — 49&nbsp;€</a>
+      <a href="/checkout/audit_29" class="btn btn-secondary">Commander — 29&nbsp;€</a>
     </div>
     <div class="price-card featured">
       <span class="badge-featured">Recommandé</span>
       <div class="price-name">Audit Complet</div>
-      <div class="price-amount"><span class="num">149&nbsp;€</span><span class="cur">TTC</span></div>
+      <div class="price-amount"><span class="num">59&nbsp;€</span><span class="cur">TTC</span></div>
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse approfondie jusqu'à 100 pages</li>
@@ -136,9 +136,10 @@
         <li>2 pages entières rédigées (H1, chapô, H2, FAQ, CTA)</li>
         <li>Toutes les balises rédigées prêtes à coller</li>
         <li>Détection fine de la cannibalisation sémantique</li>
+        <li><strong>Re-audit de contrôle gratuit sous 90 jours</strong></li>
         <li>Livraison prioritaire sous 15 minutes</li>
       </ul>
-      <a href="/checkout/audit_149" class="btn btn-primary">Commander — 149&nbsp;€</a>
+      <a href="/checkout/audit_59" class="btn btn-primary">Commander — 59&nbsp;€</a>
     </div>
   </div>
 </section>
@@ -224,7 +225,7 @@
         '<p style="margin:0 0 .35rem;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:#6b7280">Diagnostic gratuit</p>' +
         '<p style="margin:0;font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1">' + esc(d.score) + '<span style="font-size:1rem;color:#6b7280">/100</span></p>' +
         '<ul style="list-style:none;margin:.9rem 0 1rem;padding:0">' + rows + '</ul>' +
-        '<a class="btn btn-primary" href="/tarifs">Voir le rapport complet — 49 €</a>' +
+        '<a class="btn btn-primary" href="/tarifs">Voir le rapport complet — 29 €</a>' +
         '<p style="margin:.6rem 0 0;font-size:.82rem;color:#6b7280">Aperçu de 6 pages. Le rapport analyse jusqu\u2019à 25 pages et rédige les corrections.</p>' +
         '</div>');
     }

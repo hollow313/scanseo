@@ -52,7 +52,7 @@ Collez l'adresse d'une page : vous obtenez en quelques secondes ses balises titl
             '<p style="margin:0;font-size:2rem;font-weight:700;line-height:1">' + esc(d.score) + '<span style="font-size:1rem;color:#6b7280">/100</span></p>' +
             '<ul style="list-style:none;margin:.8rem 0 1rem;padding:0">' + rows + '</ul>' +
             '<p style="margin:0;font-size:.85rem;color:#3d4652">Ce contrôle ne lit qu\u2019une page. Un audit ScanSEO analyse jusqu\u2019à 100 pages, détecte la duplication et rédige les balises à coller.</p>' +
-            '<p style="margin:.6rem 0 0"><a class="btn btn-primary" href="/tarifs">Voir les audits — 49 €</a></p>');
+            '<p style="margin:.6rem 0 0"><a class="btn btn-primary" href="/tarifs">Voir les audits — 29 €</a></p>');
         })
         .catch(function () { show('<p>Connexion interrompue. Réessayez.</p>'); });
     });

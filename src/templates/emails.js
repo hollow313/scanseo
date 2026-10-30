@@ -106,3 +106,48 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+/**
+ * Rappel envoyé 10 jours avant la fin du délai de re-audit inclus (90 jours).
+ * Le lien mène à l'espace client, où le bouton lance le re-audit sans paiement.
+ */
+export function renderReauditReminderEmail({ token, auditUrl, siteUrl, daysLeft, score }) {
+  const subject = `Votre re-audit gratuit expire dans ${daysLeft} jours`;
+  const text = `Bonjour,
+
+Votre audit SEO de ${siteUrl} a été livré il y a ${90 - daysLeft} jours${score != null ? ` (score ${score}/100)` : ''}.
+
+Votre offre comprend un re-audit de contrôle gratuit, valable 90 jours. Il vous reste ${daysLeft} jours pour en profiter.
+
+Pour le lancer, ouvrez votre espace et cliquez sur « Lancer mon re-audit gratuit » :
+${auditUrl}
+
+Le re-audit relance la même analyse sur le site tel qu'il est aujourd'hui : vous voyez immédiatement les points corrigés et ceux qui restent.
+
+Aucun paiement, aucune démarche : c'est inclus dans votre commande.
+
+À bientôt,
+L'équipe ScanSEO`;
+
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>${subject}</title></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0e1116;margin:0;padding:24px;line-height:1.6">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border:1px solid #e6e8ee;border-radius:12px;padding:32px">
+    <h1 style="color:#3b5bfd;font-size:22px;margin-top:0">Votre re-audit gratuit expire dans ${escapeHtml(String(daysLeft))} jours</h1>
+    <p>Bonjour,</p>
+    <p>Votre audit de <strong>${escapeHtml(siteUrl)}</strong> a été livré il y a ${escapeHtml(String(90 - daysLeft))} jours${score != null ? `, avec un score de <strong>${escapeHtml(String(score))}/100</strong>` : ''}.</p>
+    <p>Votre offre <strong>Audit complet</strong> inclut un <strong>re-audit de contrôle gratuit</strong>, valable 90 jours.
+    Il vous reste <strong>${escapeHtml(String(daysLeft))} jours</strong> pour l'utiliser.</p>
+    <p style="margin:24px 0">
+      <a href="${escapeHtml(auditUrl)}" style="background:#3b5bfd;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;display:inline-block">Lancer mon re-audit gratuit</a>
+    </p>
+    <p>Le re-audit relance exactement la même analyse sur le site tel qu'il est aujourd'hui : vous voyez ce qui a été corrigé, et ce qui reste.</p>
+    <p style="color:#6b7280;font-size:13px">Aucun paiement, aucune démarche : c'est inclus dans votre commande.</p>
+    <p>À bientôt,<br>L'équipe ScanSEO</p>
+  </div>
+</body>
+</html>`;
+
+  return { subject, text, html };
+}

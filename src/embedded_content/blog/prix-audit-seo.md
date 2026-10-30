@@ -17,7 +17,7 @@ Google met gratuitement à votre disposition des outils utiles : Search Console 
 
 ### L'audit automatisé (de l'ordre de quelques dizaines d'euros)
 
-Un audit automatisé fait tourner un programme qui passe votre site au crible : balises de titre, descriptions, structure des pages, vitesse mobile, erreurs techniques. ScanSEO, par exemple, contrôle 66 points sur jusqu'à 25 pages pour 49 € TTC, et livre par email un PDF avec les textes rédigés prêts à coller et un plan d'action sur 30 jours. C'est la façon la plus économique d'obtenir un diagnostic exploitable en moins de 15 minutes, sans dépendre des disponibilités d'un consultant.
+Un audit automatisé fait tourner un programme qui passe votre site au crible : balises de titre, descriptions, structure des pages, vitesse mobile, erreurs techniques. ScanSEO, par exemple, contrôle 66 points sur jusqu'à 25 pages pour 29 € TTC, et livre par email un PDF avec les textes rédigés prêts à coller et un plan d'action sur 30 jours. C'est la façon la plus économique d'obtenir un diagnostic exploitable en moins de 15 minutes, sans dépendre des disponibilités d'un consultant.
 
 ### Le freelance (comptez de l'ordre de quelques centaines d'euros)
 

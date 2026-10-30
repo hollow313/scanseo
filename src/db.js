@@ -168,6 +168,17 @@ export function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_events_webhook_id ON events(webhook_id);
     CREATE INDEX IF NOT EXISTS idx_teasers_host_created ON teasers(host, created_at);
   `);
+
+  // Migration : re-audit de contrôle de l'offre complète. Idempotente, jouée à
+  // chaque démarrage sur les bases existantes.
+  const columns = new Set(db.prepare('PRAGMA table_info(audits)').all().map((c) => c.name));
+  if (!columns.has('parent_audit_id')) {
+    db.exec('ALTER TABLE audits ADD COLUMN parent_audit_id TEXT');
+  }
+  if (!columns.has('reaudit_reminded_at')) {
+    db.exec('ALTER TABLE audits ADD COLUMN reaudit_reminded_at TEXT');
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS idx_audits_parent ON audits(parent_audit_id)');
 }
 
 export function setSystemKv(key, value) {

@@ -8,6 +8,7 @@ import puppeteer from 'puppeteer-core';
 import { PDFDocument } from 'pdf-lib';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { config } from './config.js';
+import { isPremium } from './offers.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATES = path.join(__dirname, 'templates');
@@ -195,8 +196,8 @@ function coverPage(report, facts, offer = 'audit_49') {
     Aucune garantie de position, de trafic ou de délai de progression n'est associée à ce document.</div>
   </div>
   <div class="cv-foot">
-    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · gabarit ${RENDER_VERSION} · ${offer === 'audit_149'
-      ? 'Offre Audit Complet · 100 pages maximum'
+    <span><strong style="color:var(--ink)">Réf. ${esc(ref)}</strong> · gabarit ${RENDER_VERSION} · ${isPremium(offer)
+      ? 'Offre Audit complet · 100 pages maximum · re-audit inclus'
       : 'Offre Audit SEO · 25 pages maximum'}</span>
     <span>${EDITOR.name} · ${EDITOR.contact}</span>
   </div>
@@ -506,7 +507,7 @@ function buildPages(report, facts, opts = {}) {
   const offer = opts.offer || 'audit_49';
   // La section des pages rédigées décale la numérotation des chapitres suivants :
   // sans cela le PDF affichait 04, 06, 05, 06 — indigne d'un document payant.
-  const hasPages = offer === 'audit_149' && !!report.pages_redigees?.length;
+  const hasPages = isPremium(offer) && !!report.pages_redigees?.length;
   const pages = [
     coverPage(report, facts, offer),
     synthesePage(report, facts),

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { config } from './config.js';
+import { isPremium, offerLabel } from './offers.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -332,9 +333,9 @@ function buildUserPrompt(facts, offer, findings, regenReasons) {
   let out = `SITE : ${reduced.site.host || ''} (${reduced.site.url || ''})
 ACTIVITÉ DÉCLARÉE : ${reduced.site.activity || ''}
 VILLE : ${reduced.site.city || ''}
-OFFRE : ${offer === 'audit_149'
-    ? 'audit_149 = 100 pages analysées, plan d\'action sur 12 semaines (90 jours), 2 pages entièrement rédigées (H1, chapô, H2, FAQ, CTA) dans pages_redigees'
-    : 'audit_49 = 25 pages analysées, plan d\'action sur 4 semaines (30 jours), aucune page entièrement rédigée'}
+OFFRE : ${isPremium(offer)
+    ? 'audit complet = 100 pages analysées, plan d\'action sur 12 semaines (90 jours), 2 pages entièrement rédigées (H1, chapô, H2, FAQ, CTA) dans pages_redigees'
+    : 'audit standard = 25 pages analysées, plan d\'action sur 4 semaines (30 jours), aucune page entièrement rédigée'}
 
 RÈGLE DE VÉRITÉ : n'affirme jamais un problème absent des constats fournis. Si un pilier est noté
 100/100, aucun texte ne doit laisser entendre qu'il reste un défaut dans ce pilier. Chaque phrase du
@@ -1033,7 +1034,7 @@ export async function analyze(facts, { offer, model, fallbackFindings } = {}) {
   finalizeReport(report, facts, findings, fixes);
 
   // Offre 149 € : plan étendu à 90 jours si le modèle s'est arrêté à 30.
-  if (offer === 'audit_149') {
+  if (isPremium(offer)) {
     const before = (report.plan_30_jours || []).length;
     report.plan_30_jours = completePlan90(report.plan_30_jours, findings);
     if ((report.plan_30_jours || []).length > before) {
@@ -1042,7 +1043,7 @@ export async function analyze(facts, { offer, model, fallbackFindings } = {}) {
   }
 
   // Étape « 2 pages rédigées » (offre 149 € uniquement, hors mock)
-  if (offer === 'audit_149' && !mock) {
+  if (isPremium(offer) && !mock) {
     try {
       const p149 = await redigePages149(facts, effectiveModel);
       accumulate(p149.usage);

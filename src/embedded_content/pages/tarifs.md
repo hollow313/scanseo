@@ -8,7 +8,7 @@
   <div class="pricing">
     <div class="price-card">
       <div class="price-name">Audit SEO</div>
-      <div class="price-amount"><span class="num">49&nbsp;€</span><span class="cur">TTC</span></div>
+      <div class="price-amount"><span class="num">29&nbsp;€</span><span class="cur">TTC</span></div>
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse complète jusqu'à 25 pages</li>
@@ -18,12 +18,12 @@
         <li>Vérification Search Console pas à pas</li>
         <li>Livraison sous 15 minutes par email</li>
       </ul>
-      <a href="/checkout/audit_49" class="btn btn-secondary">Commander — 49&nbsp;€</a>
+      <a href="/checkout/audit_29" class="btn btn-secondary">Commander — 29&nbsp;€</a>
     </div>
     <div class="price-card featured">
       <span class="badge-featured">Recommandé</span>
       <div class="price-name">Audit Complet</div>
-      <div class="price-amount"><span class="num">149&nbsp;€</span><span class="cur">TTC</span></div>
+      <div class="price-amount"><span class="num">59&nbsp;€</span><span class="cur">TTC</span></div>
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse approfondie jusqu'à 100 pages</li>
@@ -31,9 +31,10 @@
         <li>2 pages entières rédigées (H1, chapô, H2, FAQ, CTA)</li>
         <li>Toutes les balises rédigées prêtes à coller</li>
         <li>Détection fine de la cannibalisation sémantique</li>
+        <li><strong>Re-audit de contrôle gratuit sous 90 jours</strong></li>
         <li>Livraison prioritaire sous 15 minutes</li>
       </ul>
-      <a href="/checkout/audit_149" class="btn btn-primary">Commander — 149&nbsp;€</a>
+      <a href="/checkout/audit_59" class="btn btn-primary">Commander — 59&nbsp;€</a>
     </div>
   </div>
 </section>

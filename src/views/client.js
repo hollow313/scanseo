@@ -1,5 +1,6 @@
 import { renderPage } from './layout.js';
 import { config } from '../config.js';
+import { hasReaudit } from '../offers.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -12,8 +13,10 @@ function escapeHtml(str) {
 }
 
 const OFFER_LABELS = {
+  audit_29: 'Audit SEO (29 € TTC)',
+  audit_59: 'Audit complet (59 € TTC)',
   audit_49: 'Audit SEO (49 € TTC)',
-  audit_149: 'Audit Complet (149 € TTC)',
+  audit_149: 'Audit complet (149 € TTC)',
 };
 
 function offerLabel(offer) {
@@ -127,9 +130,35 @@ function renderAuditStatus(audit, opts = {}) {
   } else if (audit.status === 'refunded') {
     statusExtra = `<p>Votre commande a été remboursée. Aucune analyse ne sera effectuée.</p>`;
   } else if (audit.status === 'done') {
+    // Re-audit de contrôle : inclus dans l'offre complète, pendant 90 jours.
+    let reaudit = '';
+    if (hasReaudit(audit.offer)) {
+      const jours = audit.finished_at
+        ? Math.floor((Date.now() - new Date(audit.finished_at).getTime()) / 86_400_000)
+        : null;
+      const reste = jours == null ? null : Math.max(0, 90 - jours);
+      if (audit.reaudit_child_token) {
+        reaudit = `<div class="alert-box">Votre re-audit de contrôle a déjà été lancé :
+          <a href="/audit/${escapeHtml(audit.reaudit_child_token)}">voir le nouveau rapport</a>.</div>`;
+      } else if (reste != null && reste > 0) {
+        reaudit = `
+          <div class="alert-box">
+            <p><strong>Re-audit de contrôle inclus</strong> — vous pouvez relancer l'analyse de ce site
+            gratuitement pendant encore ${escapeHtml(reste)} jour${reste > 1 ? 's' : ''},
+            après avoir appliqué les corrections du rapport.</p>
+            <form method="POST" action="/audit/${escapeHtml(audit.token)}/relance" style="margin:0.6rem 0 0">
+              <button class="btn" type="submit">Lancer mon re-audit gratuit</button>
+            </form>
+          </div>`;
+      } else {
+        reaudit = '<p style="color:var(--text-muted);">Le délai de re-audit inclus (90 jours) est dépassé.</p>';
+      }
+    }
+
     statusExtra = `
       ${audit.score != null ? `<p style="font-size:1.1rem;">Score global : <strong style="color:var(--primary);font-size:1.6rem;">${escapeHtml(audit.score)}/100</strong></p>` : ''}
       <p><a class="btn" href="/audit/${escapeHtml(audit.token)}/rapport.pdf" download>📄 Télécharger mon rapport PDF</a></p>
+      ${reaudit}
     `;
   }
 
