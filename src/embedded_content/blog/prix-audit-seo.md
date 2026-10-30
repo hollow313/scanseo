@@ -31,7 +31,7 @@ Une agence mobilise plusieurs profils : consultant, rédacteur, éventuellement 
 
 Quatre facteurs surtout :
 
-- **Le nombre de pages analysées.** Un site de 10 pages et un site de 200 pages ne demandent pas le même travail. Chez ScanSEO, l'offre à 49 € couvre jusqu'à 25 pages, celle à 149 € jusqu'à 100.
+- **Le nombre de pages analysées.** Un site de 10 pages et un site de 200 pages ne demandent pas le même travail. Chez ScanSEO, l'offre à 29 € couvre jusqu'à 25 pages, celle à 59 € jusqu'à 100 avec un re-audit de contrôle inclus.
 - **La profondeur.** Vérifier les balises de base est rapide ; analyser la concurrence sémantique et la cannibalisation l'est beaucoup moins.
 - **Le livrable.** Un PDF de constats vaut moins cher qu'un rapport qui inclut des textes rédigés prêts à coller et un plan semaine par semaine.
 - **Le délai.** Un audit rendu par un programme sous 15 minutes coûte moins cher qu'un rapport manuel livré sous deux semaines.
@@ -51,13 +51,13 @@ Quelques signes ne trompent pas :
 
 Le bon prix dépend de votre situation, pas d'une grille universelle :
 
-- **Votre site est récent et ne sort nulle part.** Commencez par un audit automatisé à 49 € : il vous dira si le problème vient des balises, du contenu ou de l'indexation. Inutile de payer un consultant avant d'avoir ce premier état des lieux.
-- **Votre site stagne depuis des mois malgré des efforts.** Un audit plus profond sur 100 pages (149 €) peut révéler des doublons, des problèmes de structure ou une cannibalisation que vous ne voyez pas.
+- **Votre site est récent et ne sort nulle part.** Commencez par un audit automatisé à 29 € : il vous dira si le problème vient des balises, du contenu ou de l'indexation. Inutile de payer un consultant avant d'avoir ce premier état des lieux.
+- **Votre site stagne depuis des mois malgré des efforts.** Un audit plus profond sur 100 pages (129 €) peut révéler des doublons, des problèmes de structure ou une cannibalisation que vous ne voyez pas.
 - **Vous préparez un gros chantier.** Là, un accompagnement manuel — freelance ou agence — se justifie, et l'audit automatisé vous sert de document de cadrage pour ne pas payer un re-diagnostic.
 
-## Ce que 49 € achète — et ce qu'il n'achète pas
+## Ce que 29 € achète — et ce qu'il n'achète pas
 
-Avec l'audit ScanSEO à 49 € TTC, vous achetez un travail précis : 66 points de contrôle mesurés sur jusqu'à 25 pages, un score sur 100, les constats expliqués en français, les textes rédigés prêts à coller et un plan d'action sur 30 jours, livrés par email sous 15 minutes. L'offre à 149 € élargit le champ à 100 pages, ajoute un plan sur 90 jours et deux pages entières rédigées.
+Avec l'audit ScanSEO à 29 € TTC, vous achetez un travail précis : 66 points de contrôle mesurés sur jusqu'à 25 pages, un score sur 100, les constats expliqués en français, les textes rédigés prêts à coller et un plan d'action sur 30 jours, livrés par email sous 15 minutes. L'offre à 129 € élargit le champ à 100 pages, ajoute un plan sur 90 jours et deux pages entières rédigées.
 
 Ce que vous n'achetez pas : l'application des corrections sur votre site, un suivi mensuel, ni la garantie d'une position ou d'un trafic. Ces prestations existent ailleurs, à d'autres prix ; ici, vous payez le diagnostic et les textes, puis vous appliquez vous-même ou avec votre webmaster.
 

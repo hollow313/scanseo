@@ -1,5 +1,6 @@
 import { safeFetch, mapLimit, sleep, UA } from './fetcher.js';
 import { runPageSpeed } from './pagespeed.js';
+import { maxPagesFor } from './offers.js';
 
 /* ------------------------------------------------------------------ */
 /* Extraction HTML par regex uniquement (aucune dépendance DOM).        */

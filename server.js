@@ -6,6 +6,7 @@ import { getDb } from './src/db.js';
 import { checkHealth } from './src/health.js';
 import { getPageContent, resolveImage } from './src/content.js';
 import { renderPage } from './src/views/layout.js';
+import { SALE_OFFERS } from './src/offers.js';
 import { handlePolarWebhook } from './src/webhook.js';
 import { listPosts, getPost, robotsTxt, sitemapXml } from './src/blog.js';
 
@@ -102,17 +103,19 @@ app.get('/assets/img/:filename(*)', (req, res) => {
 // Liens de redirection vers le checkout Polar
 app.get('/checkout/:offer', (req, res) => {
   const offer = req.params.offer;
-  let productId = null;
+  // Seules les offres en vente sont achetables : les anciennes (49/149) renvoient
+  // 404 même si leur identifiant produit traîne encore dans l'environnement.
+  if (!SALE_OFFERS.includes(offer)) {
+    return res.status(404).send('Offre inconnue');
+  }
   const POLAR_PRODUCTS = {
     audit_29: config.polarProduct29,
     audit_59: config.polarProduct59,
-    audit_49: config.polarProduct49,
-    audit_149: config.polarProduct149,
   };
-  productId = POLAR_PRODUCTS[offer] || null;
+  const productId = POLAR_PRODUCTS[offer] || null;
 
   if (!productId) {
-    return res.status(404).send('Offre inconnue');
+    return res.status(503).send('Cette offre est en cours d\'activation.');
   }
 
   // Liens de checkout créés côté Polar (un par produit). Un lien mort ici = aucun encaissement.

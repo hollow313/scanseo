@@ -16,7 +16,7 @@ Un programme est imbattable sur la régularité et l'exhaustivité. Là où un �
 - **La vitesse.** Temps de chargement et lisibilité mobile, mesurés objectivement.
 - **La cohérence.** Canonicals, liens internes cassés, données structurées.
 
-Le résultat est un constat factuel, mesuré et reproductible : si le même site est scanné deux fois, les mêmes problèmes ressortent. C'est cette fiabilité qui permet un tarif bas, de 49 € TTC, et une livraison sous 15 minutes. Pour un artisan qui n'a pas le temps d'apprendre à lire le code de son site, c'est un gain direct.
+Le résultat est un constat factuel, mesuré et reproductible : si le même site est scanné deux fois, les mêmes problèmes ressortent. C'est cette fiabilité qui permet un tarif bas, de 29 € TTC, et une livraison sous 15 minutes. Pour un artisan qui n'a pas le temps d'apprendre à lire le code de son site, c'est un gain direct.
 
 ## Ce qu'il ne peut pas mesurer
 

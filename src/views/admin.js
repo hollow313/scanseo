@@ -254,7 +254,7 @@ export function renderAuditList(data) {
   const statusOptions = ['pending', 'queued', 'running', 'done', 'failed', 'refunded', 'expired']
     .map((s) => `<option value="${s}" ${data.statusFilter === s ? 'selected' : ''}>${s}</option>`)
     .join('');
-  const offerOptions = ['audit_29', 'audit_59', 'audit_49', 'audit_149', 'teaser']
+  const offerOptions = ['audit_29', 'audit_59', 'teaser']
     .map((o) => `<option value="${o}" ${data.offerFilter === o ? 'selected' : ''}>${o}</option>`)
     .join('');
 
@@ -465,8 +465,6 @@ export function renderCreateAudit(opts = {}) {
           <select id="offer" name="offer" required>
             <option value="audit_29" ${opts.offer && opts.offer !== 'audit_29' ? '' : 'selected'}>audit_29 — 29 € TTC (25 pages)</option>
             <option value="audit_59" ${opts.offer === 'audit_59' ? 'selected' : ''}>audit_59 — 59 € TTC (100 pages + re-audit)</option>
-            <option value="audit_49" ${opts.offer === 'audit_49' ? 'selected' : ''}>audit_49 — 49 € TTC (ancienne offre)</option>
-            <option value="audit_149" ${opts.offer === 'audit_149' ? 'selected' : ''}>audit_149 — 149 € TTC (ancienne offre)</option>
           </select>
         </div>
         <button class="btn" type="submit">Créer l'audit</button>

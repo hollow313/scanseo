@@ -24,7 +24,7 @@ L'audit en est le point de départ : il dit quoi faire. Le référencement, c'es
 Trois raisons :
 
 - **Savoir avant d'agir.** Corriger au hasard fait perdre du temps et de l'argent. L'audit vous donne la liste exacte des freins, classés par impact.
-- **Ne pas surpayer.** Beaucoup de sites ont trois ou quatre problèmes simples à régler. Un audit à 49 € peut suffire ; inutile de signer un forfait mensuel avant d'avoir le diagnostic.
+- **Ne pas surpayer.** Beaucoup de sites ont trois ou quatre problèmes simples à régler. Un audit à 29 € peut suffire ; inutile de signer un forfait mensuel avant d'avoir le diagnostic.
 - **Parler d'égal à égal.** Si vous faites ensuite appel à un prestataire, vous arrivez avec un rapport en main. Vous comprenez ce qu'on vous propose et vous pouvez le vérifier.
 
 ## Un exemple concret

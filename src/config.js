@@ -40,12 +40,14 @@ export const config = {
   // Repli si la commande d'origine n'a pas d'email : le rappel part vers le contact.
   reauditFallbackEmail: process.env.REAUDIT_FALLBACK_EMAIL || process.env.CONTACT_EMAIL || '',
   polarProduct59: process.env.POLAR_PRODUCT_59 || '',
+  // Offres retirées de la vente : plus aucune valeur par défaut, seulement l'env
+  // (nécessaire pour reconnaître les webhooks des commandes passées).
   polarProduct49: process.env.POLAR_PRODUCT_49 || '',
   // liens de checkout Polar (publics). Surchargeables par env.
   polarCheckout29: process.env.POLAR_CHECKOUT_29 || '',
   polarCheckout59: process.env.POLAR_CHECKOUT_59 || '',
-  polarCheckout49: process.env.POLAR_CHECKOUT_49 || 'https://buy.polar.sh/polar_cl_k4QjhXH3YH57cuhcG06VhC0mWL5lH1Rp4qqOI2hzLsw',
-  polarCheckout149: process.env.POLAR_CHECKOUT_149 || 'https://buy.polar.sh/polar_cl_Xb8MfXTawFL0doZNQuWhzeT8b7JnHouzDXBzu4WDbkQ',
+  polarCheckout49: process.env.POLAR_CHECKOUT_49 || '',
+  polarCheckout149: process.env.POLAR_CHECKOUT_149 || '',
   polarProduct149: process.env.POLAR_PRODUCT_149 || '',
   smtpUrl: process.env.SMTP_URL || '',
   smtpFrom: process.env.SMTP_FROM || '',
