@@ -606,7 +606,7 @@ function buildMeta(activity, city, host) {
 }
 
 /**
- * Offre 149 € : le plan doit couvrir 90 jours, soit douze semaines. Le modèle
+ * Offre complète (59 €) : le plan doit couvrir 90 jours, soit douze semaines. Le modèle
  * renvoie souvent les quatre premières (copie de l'exemple du prompt) : on complète
  * avec les phases qui suivent logiquement, sans réinventer de constats.
  */
@@ -857,7 +857,7 @@ function finalizeReport(report, facts, findings, fixes) {
 }
 
 // ---------------------------------------------------------------------------
-// Étape « 2 pages rédigées » (offre 149 € uniquement) — docs/05 §3
+// Étape « 2 pages rédigées » (offre complète uniquement) — docs/05 §3
 // ---------------------------------------------------------------------------
 function pickWeakestServicePage(pages) {
   const skip = /(mentions|legal|contact|tarif|devis|blog|actualit)/i;
@@ -1033,7 +1033,7 @@ export async function analyze(facts, { offer, model, fallbackFindings } = {}) {
   // Finalisation (notes de piliers recopiées, complétion ≥ 8 constats)
   finalizeReport(report, facts, findings, fixes);
 
-  // Offre 149 € : plan étendu à 90 jours si le modèle s'est arrêté à 30.
+  // Offre complète : plan étendu à 90 jours si le modèle s'est arrêté à 30.
   if (isPremium(offer)) {
     const before = (report.plan_30_jours || []).length;
     report.plan_30_jours = completePlan90(report.plan_30_jours, findings);
@@ -1042,7 +1042,7 @@ export async function analyze(facts, { offer, model, fallbackFindings } = {}) {
     }
   }
 
-  // Étape « 2 pages rédigées » (offre 149 € uniquement, hors mock)
+  // Étape « 2 pages rédigées » (offre complète, hors mock)
   if (isPremium(offer) && !mock) {
     try {
       const p149 = await redigePages149(facts, effectiveModel);

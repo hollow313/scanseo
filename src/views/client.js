@@ -1,6 +1,7 @@
 import { renderPage } from './layout.js';
 import { config } from '../config.js';
 import { hasReaudit } from '../offers.js';
+import { frDateTime } from '../format.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -169,7 +170,7 @@ function renderAuditStatus(audit, opts = {}) {
   return `
     <div class="content-box">
       <h1>Audit de ${escapeHtml(audit.host)}</h1>
-      <p style="color:var(--text-muted);">Offre : ${offerLabel(audit.offer)} · Créé le ${escapeHtml(new Date(audit.created_at).toLocaleString('fr-FR'))}</p>
+      <p style="color:var(--text-muted);">Offre : ${offerLabel(audit.offer)} · Créé le ${escapeHtml(frDateTime(audit.created_at))}</p>
       ${savedNote}
       <div style="margin:1.5rem 0;">
         <p style="font-weight:600;">Statut : <span style="color:var(--primary);">${escapeHtml(label)}</span></p>

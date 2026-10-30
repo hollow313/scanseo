@@ -220,8 +220,8 @@ h2{font-size:15pt;letter-spacing:-.02em;margin:10mm 0 4mm;font-weight:700}
     <p>Textes prêts à coller pour chaque page (titres, descriptions, H1), plan d'action sur 30 jours,
     analyse de performance mobile et suivi Search Console pas à pas.</p>
     <div class="prix">
-      <a href="${config.publicBaseUrl}/checkout/audit_49"><b>49 € TTC</b>Audit SEO · 25 pages</a>
-      <a class="rec" href="${config.publicBaseUrl}/checkout/audit_149"><b>149 € TTC</b>Audit Complet · 100 pages<span class="rec-b">Recommandé</span></a>
+      <a href="${config.publicBaseUrl}/checkout/audit_29"><b>29 € TTC</b>Audit SEO · 25 pages</a>
+      <a class="rec" href="${config.publicBaseUrl}/checkout/audit_59"><b>59 € TTC</b>Audit complet · 100 pages + re-audit<span class="rec-b">Recommandé</span></a>
     </div>
     <p style="margin-top:3mm;font-size:8.5pt">Commander sur ${esc(config.publicBaseUrl.replace(/^https?:\/\//, ''))} — rapport livré par email sous 15 minutes.</p>
   </div>

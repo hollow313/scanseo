@@ -7,6 +7,7 @@ import { checkHealth } from './src/health.js';
 import { getPageContent, resolveImage } from './src/content.js';
 import { renderPage } from './src/views/layout.js';
 import { SALE_OFFERS } from './src/offers.js';
+import { frDate } from './src/format.js';
 import { handlePolarWebhook } from './src/webhook.js';
 import { listPosts, getPost, robotsTxt, sitemapXml } from './src/blog.js';
 
@@ -385,7 +386,7 @@ app.get('/blog', (req, res) => {
   const items = posts.length
     ? posts.map((p) => `<article class="content-box" style="margin-bottom:1rem">
         <h2 style="margin-bottom:.25rem"><a href="/blog/${p.slug}" style="color:var(--primary);text-decoration:none">${p.title}</a></h2>
-        <p style="font-size:.85rem;color:var(--ink-3,#7b8492);margin-bottom:.5rem">${new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        <p style="font-size:.85rem;color:var(--ink-3,#7b8492);margin-bottom:.5rem">${frDate(p.date)}</p>
         <p>${p.description}</p></article>`).join('')
     : '<div class="content-box"><p>Aucun article publié pour le moment.</p></div>';
   res.status(200).send(renderPage({
@@ -410,7 +411,7 @@ app.get('/blog/:slug', (req, res) => {
     title: `${post.title} — ScanSEO`.slice(0, 65),
     description: post.description,
     content: `<div class="content-box"><h1>${post.title}</h1>${post.html}</div>
-      <div class="content-box"><p><a href="/tarifs" class="btn">Voir les audits (dès 49 €)</a>
+      <div class="content-box"><p><a href="/tarifs" class="btn">Voir les audits (dès 29 €)</a>
       <a href="/blog" style="margin-left:1rem">Tous les articles</a></p></div>`,
     path: `/blog/${post.slug}`
   }));

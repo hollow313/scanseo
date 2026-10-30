@@ -29,7 +29,7 @@ export const config = {
   deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
   deepseekModelPaid: process.env.DEEPSEEK_MODEL_PAID || 'deepseek-v4-pro',
   // Le gros du travail est déterministe (66 contrôles calculés) : le modèle
-  // n'écrit que la mise en mots. Flash suffit pour l'offre 49 €.
+  // n'écrit que la mise en mots. Flash suffit pour l'offre 29 €.
   deepseekModel49: process.env.DEEPSEEK_MODEL_49 || 'deepseek-flash',
   deepseekModel29: process.env.DEEPSEEK_MODEL_29 || 'deepseek-flash',
   deepseekModel149: process.env.DEEPSEEK_MODEL_149 || process.env.DEEPSEEK_MODEL_PAID || 'deepseek-v4-pro',

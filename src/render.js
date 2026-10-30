@@ -355,7 +355,7 @@ function shortPage(url) {
 
 
 /**
- * Offre 149 € : les pages entièrement rédigées. Elles étaient générées et
+ * Offre complète : les pages entièrement rédigées. Elles étaient générées et
  * facturées mais jamais imprimées — le client payait trois fois le prix de
  * l'offre 49 € pour le même PDF.
  */

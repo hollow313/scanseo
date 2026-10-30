@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config.js';
 import { getDb } from '../db.js';
+import { frDateTime, frShort } from '../format.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -310,7 +311,7 @@ function renderAuditsTable(audits, { compact = false, detail = false } = {}) {
       : '';
 
     return `<tr>
-      <td>${escapeHtml(String(a.created_at || '').slice(0, 16).replace('T', ' '))}</td>
+      <td>${escapeHtml(frShort(a.created_at).split(' ')[0] || '—')}<br><span class="muted">${escapeHtml(frShort(a.created_at).split(' ')[1] || '')}</span></td>
       <td>${escapeHtml(email)}</td>
       <td>${escapeHtml(a.host || '')}</td>
       <td>${escapeHtml(a.offer || '')}</td>
@@ -380,7 +381,7 @@ export function renderAuditDetail(data) {
         <tr><td class="muted">Coût</td><td>${a.cost_usd != null ? `$${Number(a.cost_usd).toFixed(3)}` : '—'}</td></tr>
         <tr><td class="muted">Durée</td><td>${a.duration_ms != null ? `${(a.duration_ms / 60000).toFixed(1)} min` : '—'}</td></tr>
         <tr><td class="muted">Activité / Ville</td><td>${escapeHtml(a.activity || '—')} / ${escapeHtml(a.city || '—')}</td></tr>
-        <tr><td class="muted">Créé le</td><td>${escapeHtml(a.created_at)}</td></tr>
+        <tr><td class="muted">Créé le</td><td>${escapeHtml(frDateTime(a.created_at))}</td></tr>
         <tr><td class="muted">Livraison</td><td>${escapeHtml(data.deliveryTo || '—')}</td></tr>
       </table>
       <div class="actions" style="margin-top:0.75rem;">
@@ -411,7 +412,7 @@ export function renderAuditDetail(data) {
 // ─────────────────────────────────────────────────────────────────────────────
 export function renderLeads(data) {
   const teaserRows = (data.teasers || []).map((t) => `<tr>
-    <td>${escapeHtml(String(t.created_at || '').slice(0, 16).replace('T', ' '))}</td>
+    <td>${escapeHtml(frShort(t.created_at))}</td>
     <td>${escapeHtml(t.host || '')}</td>
     <td>${escapeHtml(t.url || '')}</td>
     <td>${t.score != null ? `${t.score}/100` : '—'}</td>
@@ -419,7 +420,7 @@ export function renderLeads(data) {
   </tr>`).join('');
 
   const leadRows = (data.leads || []).map((l) => `<tr>
-    <td>${escapeHtml(String(l.created_at || '').slice(0, 16).replace('T', ' '))}</td>
+    <td>${escapeHtml(frShort(l.created_at))}</td>
     <td>${escapeHtml(l.email || '')}</td>
     <td>${escapeHtml(l.source || '—')}</td>
   </tr>`).join('');
