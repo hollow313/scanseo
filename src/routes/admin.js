@@ -420,9 +420,16 @@ router.get('/system', (req, res) => {
   `).get();
   const lastSentEmail = lastSent ? lastSent.sent_at : null;
 
+  const lastFail = db.prepare(`
+    SELECT error, created_at FROM emails WHERE status = 'failed' ORDER BY id DESC LIMIT 1
+  `).get();
+
   const contentState = listContentDirs();
 
   res.status(200).send(renderSystem({
+    mailError: lastFail ? { error: lastFail.error, at: lastFail.created_at } : null,
+    mailResult: req.query.mail || null,
+    mailResultMsg: req.query.msg || null,
     version: '0.1.0',
     health,
     workerLastSeen,
@@ -433,6 +440,29 @@ router.get('/system', (req, res) => {
       reports: diskUsage(config.reportsDir),
     },
   }));
+});
+
+/**
+ * Envoi d'un email de test : c'est la seule preuve qu'un SMTP fonctionne.
+ * L'erreur est renvoyée dans l'URL (identifiants masqués), pas seulement dans les logs.
+ */
+router.post('/system/test-mail', async (req, res) => {
+  const to = (req.body && req.body.to) || config.contactEmail;
+  try {
+    const { sendEmail } = await import('../mail.js');
+    const r = await sendEmail({
+      to,
+      kind: 'admin_test',
+      subject: 'Test SMTP — ScanSEO',
+      text: "Si vous lisez ce message, l'envoi d'emails fonctionne.",
+      html: "<p>Si vous lisez ce message, l'envoi d'emails fonctionne.</p>",
+    });
+    if (r && r.ok) return res.redirect('/admin/system?mail=ok');
+    return res.redirect('/admin/system?mail=fail&msg=' + encodeURIComponent('refusé par le serveur (voir emails.error)'));
+  } catch (err) {
+    const msg = String(err.message || err).replace(/\/\/[^@/]*@/g, '//***@').slice(0, 220);
+    return res.redirect('/admin/system?mail=fail&msg=' + encodeURIComponent(msg));
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

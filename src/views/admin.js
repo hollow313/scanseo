@@ -435,8 +435,31 @@ export function renderSystem(data) {
     return `<tr><td class="muted">${label}</td><td>${d.used} / ${d.total} (libre ${d.free})</td></tr>`;
   };
 
+  const mailBanner = data.mailResult === 'ok'
+    ? `<div class="alert info">Email de test envoyé à ${escapeHtml(data.contactEmail || config.contactEmail)} : vérifiez la boîte (et le dossier indésirables). L'envoi fonctionne.</div>`
+    : data.mailResult === 'fail'
+      ? `<div class="alert">Échec de l'envoi : ${escapeHtml(data.mailResultMsg || 'erreur inconnue')}</div>`
+      : '';
+
   const body = `
+    ${mailBanner}
     <h1>Système</h1>
+    <div class="panel">
+      <h2>Envoi d'emails</h2>
+      <p class="muted" style="margin-bottom:0.75rem">
+        Un SMTP « configuré » n'est pas un SMTP qui fonctionne : seul un email reçu le prouve.
+        Expéditeur : <strong>${escapeHtml(config.smtpFrom || '—')}</strong> ·
+        Dernier échec : ${data.mailError ? `<span class="err">${escapeHtml(String(data.mailError.at))} — ${escapeHtml(String(data.mailError.error).slice(0, 160))}</span>` : '<span class="muted">aucun</span>'}
+      </p>
+      <form method="POST" action="/admin/system/test-mail" style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:240px">
+          <label for="mail-to">Destinataire du test</label>
+          <input id="mail-to" type="email" name="to" value="${escapeHtml(config.contactEmail || '')}" placeholder="vous@exemple.fr">
+        </div>
+        <button type="submit" class="btn">Envoyer un email de test</button>
+      </form>
+    </div>
+
     <div class="panel">
       <h2>Santé</h2>
       <table>
