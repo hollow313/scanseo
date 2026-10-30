@@ -85,12 +85,19 @@ function requireAdmin(req, res, next) {
  */
 router.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
-  const origin = req.headers.origin || req.headers.referer || '';
-  const expected = (config.publicBaseUrl || '').replace(/\/$/, '');
-  if (!origin || !expected || !origin.startsWith(expected)) {
-    return res.status(403).send('Origine refusée');
-  }
-  return next();
+  const origin = req.headers.origin || '';
+  // Pas d'en-tête Origin : requête non-navigateur (curl, script interne, cron).
+  // Une attaque CSRF vient forcément d'une page web, donc avec Origin.
+  if (!origin) return next();
+  let originHost = '';
+  try { originHost = new URL(origin).host; } catch { originHost = ''; }
+  const host = req.headers.host || '';
+  // Même hôte que la requête : couvre le LAN (192.168.1.200:30023) ET le domaine public.
+  if (originHost && host && originHost === host) return next();
+  let publicHost = '';
+  try { publicHost = new URL(config.publicBaseUrl || '').host; } catch { publicHost = ''; }
+  if (originHost && publicHost && originHost === publicHost) return next();
+  return res.status(403).send('Origine refusée');
 });
 
 // En-tête noindex sur l'ensemble de l'admin.
