@@ -213,6 +213,9 @@ if (auditRouter) {
   });
 }
 
+const prospectRouter = await importOptionalRoute('./src/routes/prospect.js');
+if (prospectRouter) app.use('/api/prospect', prospectRouter);
+
 const adminRouter = await importOptionalRoute('./src/routes/admin.js');
 if (adminRouter) app.use('/admin', adminRouter);
 

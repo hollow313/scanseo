@@ -583,13 +583,21 @@ export async function collect(audit, { onProgress } = {}) {
         const abs = resolveUrl(h, page.final_url);
         if (!abs) continue;
         const k = normalizeForKey(abs);
-        if (!seen.has(k)) queue.push({ url: abs, depth: item.depth + 1 });
+        if (seen.has(k)) continue;
+        // Les pages légales et de contact passent en tête : sans elles, un crawl court
+        // conclut à tort à l'absence de mentions légales, ce qui est un constat critique.
+        if (/mentions|cgv|confidentialite|legal|contact/i.test(abs)) queue.unshift({ url: abs, depth: item.depth + 1 });
+        else queue.push({ url: abs, depth: item.depth + 1 });
       }
     }
   }
 
   facts.site.pages_crawled = facts.pages.length;
-  facts.site.truncated = truncatedAny;
+  // Un crawl arrêté au plafond de pages n'a PAS tout vu : `truncated` doit le dire,
+  // sinon les contrôles d'exhaustivité (mentions légales, liens sortants, orphelines)
+  // concluent sur un site partiellement visité — et produisent de faux « critique ».
+  facts.site.truncated = truncatedAny || queue.length > 0;
+  facts.site.crawl_complete = !facts.site.truncated;
 
   // --- statuts dérivés de l'accueil ---
   const home = facts.pages[0] || null;
@@ -664,7 +672,10 @@ export async function collect(audit, { onProgress } = {}) {
   // --- liens cassés (liens internes uniques non déjà crawlés) ---
   {
     const crawledKeys = new Set(facts.pages.map((p) => normalizeForKey(p.url)));
+    // Seules les URL http(s) se testent : un mailto:/tel: résolu en chemin relatif
+    // produisait un faux « lien interne en 404 » sur le domaine.
     const unique = [...new Set(allInternalHrefs.map((l) => l.url))]
+      .filter((u) => /^https?:\/\//i.test(u))
       .filter((u) => !crawledKeys.has(normalizeForKey(u)))
       .slice(0, 40);
     const results = await mapLimit(unique, 3, async (u) => {

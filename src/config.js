@@ -42,6 +42,9 @@ export const config = {
   adminUser: process.env.ADMIN_USER || 'loic',
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || '',
   signingSecret: process.env.SIGNING_SECRET || '',
+  // clé d'API pour les scans de prospection (usage interne / réseau local).
+  // Absente = route de prospection désactivée (503), jamais ouverte sans clé.
+  scanApiKey: process.env.SCAN_API_KEY || '',
   maxPages49: parseInt(process.env.MAX_PAGES_49 || '25', 10),
   maxPages149: parseInt(process.env.MAX_PAGES_149 || '100', 10),
   tz: process.env.TZ || 'Europe/Paris',

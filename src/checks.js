@@ -347,6 +347,7 @@ export const CATALOGUE = [
     code: 'O16', label: 'Page du sitemap non liée en interne (orpheline)', pillar: 'onpage', severity: 'majeur', penalty: 5, cap: 10,
     check(facts) {
       if (!facts.sitemap.present) return na('pas de sitemap');
+      if (facts.site?.truncated) return na('crawl partiel : impossible de distinguer une orpheline d\'une page non visitée');
       const orphan = facts.sitemap.in_sitemap_not_linked || [];
       if (!orphan.length) return ok();
       return fix(orphan.length, `${orphan.length} URL(s) du sitemap non liée(s) en interne (ex. ${orphan[0]})`, orphan[0]);
@@ -674,6 +675,9 @@ export const CATALOGUE = [
     code: 'S01', label: 'Mentions légales absentes', pillar: 'local', severity: 'critique', penalty: 10, cap: 1,
     check(facts) {
       if (facts.local?.legal_page_found) return ok();
+      // Un crawl partiel ne prouve pas l'absence : on ne classe jamais un site
+      // « sans mentions légales » sur un échantillon.
+      if (facts.site?.truncated) return na('crawl partiel : la page de mentions légales n\'a pas été atteinte');
       return fix(1, 'aucune page de mentions légales détectée', facts.site.url);
     },
   },
@@ -687,6 +691,7 @@ export const CATALOGUE = [
   {
     code: 'S03', label: 'Liens sortants vers des domaines douteux (> 5)', pillar: 'local', severity: 'majeur', penalty: 5, cap: 1,
     check(facts) {
+      if (facts.site?.truncated) return na('crawl partiel : échantillon insuffisant pour juger les liens sortants');
       const doms = facts.local?.suspicious_domains || [];
       if (doms.length > 5) return fix(1, `${doms.length} domaine(s) sortant(s) douteux (ex. ${doms[0]})`, facts.site.url);
       return ok();
