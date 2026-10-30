@@ -6,6 +6,7 @@ import { getDb } from './src/db.js';
 import { checkHealth } from './src/health.js';
 import { getPageContent, resolveImage } from './src/content.js';
 import { renderPage } from './src/views/layout.js';
+import { handlePolarWebhook } from './src/webhook.js';
 
 // 1. Validation stricte des variables d'environnement requises
 validateConfig();
@@ -15,8 +16,8 @@ const db = getDb();
 
 const app = express();
 
-// Middleware corps brut pour Polar webhook (spécifié 03 §3.1)
-app.use('/webhook/polar', express.raw({ type: '*/*' }));
+// Middleware corps brut pour Polar webhook (spécifié 03 §3.1 - impératif avant express.json)
+app.post('/webhook/polar', express.raw({ type: '*/*' }), handlePolarWebhook);
 
 // Middlewares standards pour le reste
 app.use(express.json({ limit: '2mb' }));
@@ -57,14 +58,71 @@ app.get('/assets/img/:filename(*)', (req, res) => {
   fs.createReadStream(result.filePath).pipe(res);
 });
 
+// Liens de redirection vers le checkout Polar
+app.get('/checkout/:offer', (req, res) => {
+  const offer = req.params.offer;
+  let productId = null;
+  if (offer === 'audit_49') {
+    productId = config.polarProduct49;
+  } else if (offer === 'audit_149') {
+    productId = config.polarProduct149;
+  }
+
+  if (!productId) {
+    return res.status(404).send('Offre inconnue');
+  }
+
+  // Redirection vers le checkout Polar
+  const polarCheckoutUrl = `https://polar.sh/checkout?product_id=${encodeURIComponent(productId)}`;
+  res.redirect(302, polarCheckoutUrl);
+});
+
+// Formulaire scan teaser (état "bientôt disponible" avant L5)
+app.post('/api/scan', (req, res) => {
+  res.status(200).json({
+    ok: true,
+    status: 'info',
+    message: "L'analyse gratuite instantanée arrive très prochainement (Lot 5). Les audits complets 49 € et 149 € sont déjà opérationnels ci-dessous !"
+  });
+});
+
 // Page d'accueil
 app.get('/', (req, res) => {
   const page = getPageContent('home');
   const html = renderPage({
-    title: 'ScanSEO — Audit SEO automatisé en français pour dirigeants et artisans',
+    title: 'ScanSEO — Audit SEO professionnel et automatisé',
     description: 'Audit technique et sémantique de votre site web avec les textes rédigés prêts à copier-coller et un plan d\'action sur 30 jours.',
     content: page ? page.html : '<h1>ScanSEO</h1><p>Audit SEO automatisé.</p>',
     path: '/'
+  });
+  res.status(200).send(html);
+});
+
+// Espace client
+app.get('/audit/:token', (req, res) => {
+  const token = req.params.token;
+  const audit = db.prepare('SELECT * FROM audits WHERE token = ?').get(token);
+  if (!audit) {
+    return res.status(404).send(renderPage({
+      title: 'Audit introuvable — ScanSEO',
+      content: '<h1>Audit introuvable (404)</h1><p>Ce lien d\'accès est invalide ou expiré.</p>',
+      path: '/audit'
+    }));
+  }
+
+  const html = renderPage({
+    title: `Audit de ${audit.host} — ScanSEO`,
+    content: `
+      <div class="content-box">
+        <h1>Audit SEO de ${audit.host}</h1>
+        <p>Statut actuel : <strong>${audit.status}</strong></p>
+        <p>Offre souscrite : ${audit.offer === 'audit_49' ? 'Audit SEO (49 €)' : 'Audit Complet (149 €)'}</p>
+        <p>Créé le : ${new Date(audit.created_at).toLocaleString('fr-FR')}</p>
+        <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+        <p>Votre audit est en cours de traitement. Vous recevrez votre rapport complet par email dès finalisation.</p>
+      </div>
+    `,
+    path: '/audit'
   });
   res.status(200).send(html);
 });
@@ -83,8 +141,17 @@ for (const slug of publicPages) {
       }));
     }
 
+    const titles = {
+      tarifs: 'Tarifs des audits SEO — ScanSEO',
+      faq: 'Foire aux questions — ScanSEO',
+      exemple: 'Exemple de rapport d\'audit SEO — ScanSEO',
+      'mentions-legales': 'Mentions légales — ScanSEO',
+      cgv: 'Conditions générales de vente — ScanSEO',
+      confidentialite: 'Politique de confidentialité — ScanSEO'
+    };
+
     const html = renderPage({
-      title: `${page.title || slug.toUpperCase()} — ScanSEO`,
+      title: titles[slug] || `${page.title || slug.toUpperCase()} — ScanSEO`,
       description: page.description || `Page ${slug} du service ScanSEO.`,
       content: page.html,
       path: `/${slug}`
