@@ -390,7 +390,7 @@ function planPage(report, facts, offer = 'audit_49', shift = 0) {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead(`${5 + shift} · Plan d\'action`, (report.plan_30_jours || []).length >= 8 ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
+  ${secHead(`${String(5 + shift).padStart(2, '0')} · Plan d\'action`, (report.plan_30_jours || []).length >= 8 ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
   <div class="plan">${cards}</div>
   <div class="note" style="margin-top:7mm">Une fois les corrections faites, relancez un audit : le score doit refléter les changements.
   Aucune progression de position ne peut être garantie ni datée.</div>
@@ -405,11 +405,11 @@ function suiviPage(report, facts, shift = 0) {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead(`${6 + shift} · Search Console`, 'Les données que cet audit ne mesure pas',
+  ${secHead(`${String(6 + shift).padStart(2, '0')} · Search Console`, 'Les données que cet audit ne mesure pas',
     'Trois vérifications, avec le chemin de clic exact, pour consulter vous-même les chiffres qui demandent un accès propriétaire.')}
   <div class="steps">${steps || '<p style="font-size:9pt;color:var(--ink-3)">—</p>'}</div>
 
-  <div class="sec" style="margin-top:9mm"><div class="kicker">${7 + shift} · Méthode & limites</div><h2>Ce qui a été vérifié</h2></div>
+  <div class="sec" style="margin-top:9mm"><div class="kicker">${String(7 + shift).padStart(2, '0')} · Méthode & limites</div><h2>Ce qui a été vérifié</h2></div>
   <div class="two">
     <div><div class="kicker">Ce que cet audit ne mesure pas</div>
       <p style="font-size:8.8pt">${esc(report.limites || '')}</p></div>
@@ -514,7 +514,7 @@ function buildPages(report, facts, opts = {}) {
     scoresPage(report, facts),
     ...constatsPages(report, facts, perPage),
     textesPage(report, facts),
-    ...(offer === 'audit_149' && report.pages_redigees?.length ? [pagesRedigeesPage(report, facts)] : []),
+    ...(hasPages ? [pagesRedigeesPage(report, facts)] : []),
     planPage(report, facts, offer, hasPages ? 1 : 0),
     suiviPage(report, facts, hasPages ? 1 : 0),
     ...annexePages(facts),
@@ -576,7 +576,7 @@ export async function resolveChromiumPath() {
 // Toute modification du gabarit incrémente cette version : le pipeline s'en sert
 // pour savoir si le PDF sur disque est à jour. Sans elle, « Relancer » réutilisait
 // le PDF existant et le client recevait l'ancienne mise en page indéfiniment.
-export const RENDER_VERSION = '4';
+export const RENDER_VERSION = '5';
 
 export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) {
   const warnings = [];
