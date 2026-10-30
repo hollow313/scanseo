@@ -23,7 +23,7 @@
         </div>
       </form>
       <div class="scan-result" id="scanResult" role="status"></div>
-      <p class="micro-reassure">gratuit<span class="sep">·</span>sans compte<span class="sep">·</span>résultat en 60 s</p>
+      <p class="micro-reassure">gratuit<span class="sep">·</span>sans compte<span class="sep">·</span>résultat en moins de 30 s</p>
     </div>
   </div>
 </section>
@@ -197,6 +197,19 @@
   </div>
 </section>
 
+<style>
+  .scan-progress{margin:0}
+  .scan-progress .bar{height:8px;border-radius:99px;background:#e6e8ee;overflow:hidden;position:relative}
+  .scan-progress .bar i{position:absolute;top:0;bottom:0;width:35%;border-radius:99px;background:linear-gradient(90deg,#3b5bfd,#8aa0ff);animation:scanSlide 1.15s ease-in-out infinite}
+  @keyframes scanSlide{0%{left:-35%}100%{left:100%}}
+  .scan-progress .steps{margin:.75rem 0 0;padding:0;list-style:none;font-size:.86rem;color:#6b7280}
+  .scan-progress .steps li{padding:.15rem 0}
+  .scan-progress .steps li[data-on="1"]{color:#0e1116;font-weight:600}
+  .scan-progress .steps li::before{content:"○ ";color:#b9c0cc}
+  .scan-progress .steps li[data-on="1"]::before{content:"● ";color:#3b5bfd}
+  .scan-progress .steps li[data-done="1"]::before{content:"✓ ";color:#0e9f6e}
+</style>
+
 <script>
   (function () {
     var form = document.getElementById('scanForm');
@@ -204,14 +217,27 @@
     if (!form || !result) return;
     var SEV = { bloquant: 'Critique', critique: 'Critique', majeur: 'Majeur', mineur: 'Mineur', informatif: 'Info' };
     var COL = { Critique: '#dc2626', Majeur: '#b45309', Mineur: '#6b7280', Info: '#6b7280' };
+    var timer = null;
     function esc(v) {
       return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
       });
     }
     function show(html) { result.innerHTML = html; result.style.display = 'block'; }
-    function message(text) {
-      show('<p style="margin:0;font-size:.95rem;color:#3d4652">' + esc(text) + '</p>');
+    function progress(step, pages) {
+      var steps = [
+        ['crawl', 'Exploration de votre site' + (pages ? ' — ' + pages + ' page' + (pages > 1 ? 's' : '') : '')],
+        ['score', 'Calcul du score sur 66 contrôles'],
+        ['texte', 'Rédaction des textes à coller']
+      ];
+      var order = { crawl: 0, score: 1, texte: 2, done: 3 };
+      var cur = order[step] == null ? 0 : order[step];
+      var lis = steps.map(function (s, idx) {
+        var on = cur === idx ? ' data-on="1"' : '';
+        var done = cur > idx ? ' data-done="1"' : '';
+        return '<li' + on + done + '>' + esc(s[1]) + '</li>';
+      }).join('');
+      show('<div class="scan-progress"><div class="bar"><i></i></div><ul class="steps">' + lis + '</ul></div>');
     }
     function renderDone(d) {
       var rows = (d.top3 || []).map(function (f) {
@@ -221,11 +247,22 @@
           '<strong style="display:block;margin:.15rem 0 .2rem">' + esc(f.label) + '</strong>' +
           '<span style="font-size:.85rem;color:#3d4652">' + esc(f.evidence) + '</span></li>';
       }).join('');
+      var texte = d.textePret
+        ? '<div style="margin-top:1rem;padding:.8rem;border:1px solid #dfe5ff;background:#eef1ff;border-radius:10px">' +
+            '<p style="margin:0 0 .25rem;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#22307a">Exemple de texte rédigé</p>' +
+            '<p style="margin:0;font-size:.88rem;color:#0e1116">' + esc(d.textePret.title || d.textePret.titre || '') + '</p>' +
+            '<p style="margin:.25rem 0 0;font-size:.85rem;color:#3d4652">' + esc(d.textePret.meta || d.textePret.description || '') + '</p>' +
+          '</div>'
+        : '';
+      var pending = d.status === 'partial'
+        ? '<p style="margin:.75rem 0 0;font-size:.82rem;color:#6b7280" id="textePending">Rédaction d\u2019un exemple de texte en cours…</p>'
+        : '';
       show('<div style="text-align:left">' +
         '<p style="margin:0 0 .35rem;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:#6b7280">Diagnostic gratuit</p>' +
         '<p style="margin:0;font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1">' + esc(d.score) + '<span style="font-size:1rem;color:#6b7280">/100</span></p>' +
         '<ul style="list-style:none;margin:.9rem 0 1rem;padding:0">' + rows + '</ul>' +
-        '<a class="btn btn-primary" href="/tarifs">Voir le rapport complet — 29 €</a>' +
+        texte + pending +
+        '<a class="btn btn-primary" href="/tarifs" style="margin-top:1rem">Voir le rapport complet — 29 €</a>' +
         '<p style="margin:.6rem 0 0;font-size:.82rem;color:#6b7280">Aperçu de 6 pages. Le rapport analyse jusqu\u2019à 25 pages et rédige les corrections.</p>' +
         '</div>');
     }
@@ -234,18 +271,26 @@
       fetch('/api/scan/' + encodeURIComponent(id))
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function (d) {
-          if (d && d.status === 'done') return renderDone(d);
-          if (d && d.status === 'failed') return message('Cette adresse n\u2019a pas pu être analysée. Vérifiez qu\u2019elle est accessible publiquement.');
-          return setTimeout(function () { poll(id, tries + 1); }, 2500);
+          if (d && (d.status === 'partial' || d.status === 'done')) {
+            renderDone(d);
+            if (d.status === 'done') return;
+            return setTimeout(function () { poll(id, tries + 1); }, 1500);
+          }
+          if (d && d.status === 'error') return message('Cette adresse n\u2019a pas pu être analysée. Vérifiez qu\u2019elle est accessible publiquement.');
+          progress((d && d.phase) || 'crawl', d && d.pages);
+          return setTimeout(function () { poll(id, tries + 1); }, 1500);
         })
-        .catch(function () { setTimeout(function () { poll(id, tries + 1); }, 2500); });
+        .catch(function () { setTimeout(function () { poll(id, tries + 1); }, 2000); });
+    }
+    function message(text) {
+      show('<p style="margin:0;font-size:.95rem;color:#3d4652">' + esc(text) + '</p>');
     }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var url = document.getElementById('scan-url');
       var email = document.getElementById('scan-email');
       if (!url || !url.value) return;
-      show('<p style="margin:0;font-size:.95rem;color:#3d4652">Analyse en cours… 20 secondes à 2 minutes selon la taille du site.</p>');
+      progress('crawl', 0);
       var body = { url: url.value };
       if (email && email.value) body.email = email.value;
       fetch('/api/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -256,7 +301,7 @@
           if (d.error === 'url_not_allowed') return message('Cette adresse ne peut pas être analysée (site privé ou inaccessible).');
           if (d.error === 'invalid_email') return message('L\u2019adresse email saisie n\u2019est pas valide.');
           if (!d.ok || !d.id) return message('L\u2019analyse n\u2019a pas pu démarrer. Réessayez dans un instant.');
-          if (d.cached && d.score != null && d.top3) return renderDone(d);
+          if (d.cached && d.score != null && d.top3) return renderDone({ status: 'done', score: d.score, top3: d.top3, textePret: d.textePret });
           poll(d.id, 0);
         })
         .catch(function () { message('Connexion interrompue. Réessayez.'); });

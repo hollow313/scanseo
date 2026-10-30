@@ -102,13 +102,20 @@ router.get('/:id', (req, res) => {
 
   const job = jobs.get(id);
   if (job) {
-    if (job.status === 'done') {
-      return res.json({ status: 'done', score: job.score, top3: job.top3 });
+    if (job.status === 'done' || job.status === 'partial') {
+      return res.json({
+        status: job.status,
+        score: job.score,
+        top3: job.top3,
+        textePret: job.textePret || null,
+        phase: job.phase || null,
+      });
     }
     if (job.status === 'error') {
       return res.json({ status: 'error', error: job.error || 'scan_failed' });
     }
-    return res.json({ status: job.status });
+    // En cours : le navigateur affiche l'étape et le nombre de pages explorées.
+    return res.json({ status: job.status, phase: job.phase || 'crawl', pages: job.pages || 0 });
   }
 
   // Tâche absente de la mémoire (redémarrage) : on relit la base.
@@ -134,7 +141,9 @@ router.get('/:id', (req, res) => {
 // en parallèle) ou leur échec ne fait jamais planter la route, on dégrade proprement.
 // ─────────────────────────────────────────────────────────────────────────────
 async function runTeaserScan(id, url, host, email) {
-  const job = { status: 'running' };
+  // `phase` alimente la barre de progression du navigateur : un visiteur qui voit
+  // « mesure de la vitesse » reste, un visiteur devant un texte figé part.
+  const job = { status: 'running', phase: 'crawl', pages: 0 };
   jobs.set(id, job);
 
   try {
@@ -153,11 +162,26 @@ async function runTeaserScan(id, url, host, email) {
       lang: 'fr',
     };
 
-    const facts = await collect(audit, { maxPages: TEASER_MAX_PAGES, onProgress: () => {} });
+    const facts = await collect(audit, {
+      maxPages: TEASER_MAX_PAGES,
+      onProgress: (n) => { job.pages = n; },
+    });
+    job.phase = 'score';
     const result = runChecks(facts);
 
     const score = result?.score?.global ?? null;
     const top3 = buildTop3(result);
+
+    // Le score et les constats sont prêts : on les publie tout de suite. Le texte
+    // rédigé par le modèle arrive ensuite sans bloquer l'affichage.
+    job.status = 'partial';
+    job.score = score;
+    job.top3 = top3;
+    job.phase = 'texte';
+    try {
+      getDb().prepare('UPDATE teasers SET score = ?, result_json = ? WHERE id = ?')
+        .run(score, JSON.stringify({ score, top3, textePret: null }), Number(id));
+    } catch (e) { /* la persistance ne doit jamais bloquer la réponse */ }
 
     // LLM gratuit (texte prêt) : optionnel, jamais bloquant.
     let textePret = null;
@@ -178,8 +202,10 @@ async function runTeaserScan(id, url, host, email) {
     db.prepare('UPDATE teasers SET score = ?, result_json = ? WHERE id = ?').run(score, stored, Number(id));
 
     job.status = 'done';
+    job.phase = 'done';
     job.score = score;
     job.top3 = top3;
+    job.textePret = textePret;
     jobs.set(id, job);
 
     if (email) {
