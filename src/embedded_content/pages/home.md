@@ -117,7 +117,7 @@
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse complète jusqu'à 25 pages</li>
-        <li>Rapport PDF de 14 à 22 pages</li>
+        <li>Rapport PDF, 8 à 22 pages selon la taille du site</li>
         <li>Balises title, meta et H1 rédigées</li>
         <li>Plan d'action priorisé sur 30 jours</li>
         <li>Vérification Search Console pas à pas</li>
@@ -201,28 +201,64 @@
     var form = document.getElementById('scanForm');
     var result = document.getElementById('scanResult');
     if (!form || !result) return;
+    var SEV = { bloquant: 'Critique', critique: 'Critique', majeur: 'Majeur', mineur: 'Mineur', informatif: 'Info' };
+    var COL = { Critique: '#dc2626', Majeur: '#b45309', Mineur: '#6b7280', Info: '#6b7280' };
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+    function show(html) { result.innerHTML = html; result.style.display = 'block'; }
+    function message(text) {
+      show('<p style="margin:0;font-size:.95rem;color:#3d4652">' + esc(text) + '</p>');
+    }
+    function renderDone(d) {
+      var rows = (d.top3 || []).map(function (f) {
+        var sev = SEV[f.severity] || 'Constat';
+        return '<li style="padding:.55rem 0;border-top:1px solid #e6e8ee">' +
+          '<span style="display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:' + (COL[sev] || '#6b7280') + '">' + esc(sev) + '</span> ' +
+          '<strong style="display:block;margin:.15rem 0 .2rem">' + esc(f.label) + '</strong>' +
+          '<span style="font-size:.85rem;color:#3d4652">' + esc(f.evidence) + '</span></li>';
+      }).join('');
+      show('<div style="text-align:left">' +
+        '<p style="margin:0 0 .35rem;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:#6b7280">Diagnostic gratuit</p>' +
+        '<p style="margin:0;font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1">' + esc(d.score) + '<span style="font-size:1rem;color:#6b7280">/100</span></p>' +
+        '<ul style="list-style:none;margin:.9rem 0 1rem;padding:0">' + rows + '</ul>' +
+        '<a class="btn btn-primary" href="/tarifs">Voir le rapport complet — 49 €</a>' +
+        '<p style="margin:.6rem 0 0;font-size:.82rem;color:#6b7280">Aperçu de 6 pages. Le rapport analyse jusqu\u2019à 25 pages et rédige les corrections.</p>' +
+        '</div>');
+    }
+    function poll(id, tries) {
+      if (tries > 30) { message('L\u2019analyse prend plus de temps que prévu. Réessayez dans une minute.'); return; }
+      fetch('/api/scan/' + encodeURIComponent(id))
+        .then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (d) {
+          if (d && d.status === 'done') return renderDone(d);
+          if (d && d.status === 'failed') return message('Cette adresse n\u2019a pas pu être analysée. Vérifiez qu\u2019elle est accessible publiquement.');
+          return setTimeout(function () { poll(id, tries + 1); }, 2500);
+        })
+        .catch(function () { setTimeout(function () { poll(id, tries + 1); }, 2500); });
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var url = document.getElementById('scan-url');
       var email = document.getElementById('scan-email');
       if (!url || !url.value) return;
-      result.style.display = 'block';
-      result.textContent = 'Analyse en cours…';
+      show('<p style="margin:0;font-size:.95rem;color:#3d4652">Analyse en cours… 15 à 30 secondes.</p>');
       var body = { url: url.value };
       if (email && email.value) body.email = email.value;
-      fetch('/api/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-        .then(function (r) { return r.json().catch(function () { return {}; }); })
-        .then(function (data) {
-          result.textContent = data.message ||
-            'L\u2019analyse gratuite arrive très prochainement. Les audits complets 49 € et 149 € sont déjà disponibles ci-dessous.';
+      fetch('/api/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          var d = res.d || {};
+          if (res.status === 429 || d.error === 'rate_limited') return message('Trois analyses gratuites par heure et par visiteur. Réessayez dans un moment.');
+          if (d.error === 'url_not_allowed') return message('Cette adresse ne peut pas être analysée (site privé ou inaccessible).');
+          if (d.error === 'invalid_email') return message('L\u2019adresse email saisie n\u2019est pas valide.');
+          if (!d.ok || !d.id) return message('L\u2019analyse n\u2019a pas pu démarrer. Réessayez dans un instant.');
+          if (d.cached && d.score != null && d.top3) return renderDone(d);
+          poll(d.id, 0);
         })
-        .catch(function () {
-          result.textContent = 'L\u2019analyse gratuite arrive très prochainement. Les audits complets 49 € et 149 € sont déjà disponibles ci-dessous.';
-        });
+        .catch(function () { message('Connexion interrompue. Réessayez.'); });
     });
   })();
 </script>

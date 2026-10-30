@@ -12,7 +12,7 @@
       <p class="price-vat">TVA non applicable, art. 293 B du CGI</p>
       <ul class="price-features">
         <li>Analyse complète jusqu'à 25 pages</li>
-        <li>Rapport PDF de 14 à 22 pages</li>
+        <li>Rapport PDF, 8 à 22 pages selon la taille du site</li>
         <li>Balises title, meta et H1 rédigées</li>
         <li>Plan d'action priorisé sur 30 jours</li>
         <li>Vérification Search Console pas à pas</li>
