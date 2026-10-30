@@ -213,6 +213,16 @@ if (auditRouter) {
   });
 }
 
+// Assets du site (CSS + polices) servis depuis src/templates, sans dépendance externe.
+try {
+  const assets = await import('./src/views/site-assets.js');
+  const router = assets.siteAssetsRouter || assets.default;
+  if (router) app.use('/assets', router);
+  else console.warn('[assets] site-assets.js ne exporte pas de router');
+} catch (err) {
+  console.warn('[assets] module absent:', err.code || err.message);
+}
+
 const prospectRouter = await importOptionalRoute('./src/routes/prospect.js');
 if (prospectRouter) app.use('/api/prospect', prospectRouter);
 
@@ -233,7 +243,7 @@ app.get('/blog', (req, res) => {
   const items = posts.length
     ? posts.map((p) => `<article class="content-box" style="margin-bottom:1rem">
         <h2 style="margin-bottom:.25rem"><a href="/blog/${p.slug}" style="color:var(--primary);text-decoration:none">${p.title}</a></h2>
-        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.5rem">${p.date}</p>
+        <p style="font-size:.85rem;color:var(--ink-3,#7b8492);margin-bottom:.5rem">${new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         <p>${p.description}</p></article>`).join('')
     : '<div class="content-box"><p>Aucun article publié pour le moment.</p></div>';
   res.status(200).send(renderPage({
