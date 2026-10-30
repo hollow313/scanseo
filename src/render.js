@@ -389,7 +389,7 @@ function planPage(report, facts, offer = 'audit_49') {
 
   return `<section class="page">
   ${topBar(host)}
-  ${secHead('05 · Plan d\'action', offer === 'audit_149' ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
+  ${secHead('05 · Plan d\'action', (report.plan_30_jours || []).length >= 8 ? 'Les 90 prochains jours' : 'Les 30 prochains jours')}
   <div class="plan">${cards}</div>
   <div class="note" style="margin-top:7mm">Une fois les corrections faites, relancez un audit : le score doit refléter les changements.
   Aucune progression de position ne peut être garantie ni datée.</div>
@@ -572,7 +572,7 @@ export async function resolveChromiumPath() {
 // Toute modification du gabarit incrémente cette version : le pipeline s'en sert
 // pour savoir si le PDF sur disque est à jour. Sans elle, « Relancer » réutilisait
 // le PDF existant et le client recevait l'ancienne mise en page indéfiniment.
-export const RENDER_VERSION = '2';
+export const RENDER_VERSION = '3';
 
 export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) {
   const warnings = [];
@@ -599,7 +599,7 @@ export async function renderPdf(report, facts, { outPath, offer = 'audit_49' }) 
   const schedules = [3, 2, 1];
   for (let si = 0; si < schedules.length; si++) {
     const constatsPerPage = schedules[si];
-    const html = await buildHtml(report, facts, { constatsPerPage });
+    const html = await buildHtml(report, facts, { constatsPerPage, offer });
     await fs.writeFile(htmlPath, html, 'utf8');
     const browser = await puppeteer.launch({
       executablePath,

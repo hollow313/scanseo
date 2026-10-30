@@ -604,6 +604,58 @@ function buildMeta(activity, city, host) {
   return m.slice(0, 165);
 }
 
+/**
+ * Offre 149 € : le plan doit couvrir 90 jours, soit douze semaines. Le modèle
+ * renvoie souvent les quatre premières (copie de l'exemple du prompt) : on complète
+ * avec les phases qui suivent logiquement, sans réinventer de constats.
+ */
+function completePlan90(plan, sortedFindings) {
+  const weeks = Array.isArray(plan) ? [...plan] : [];
+  if (weeks.length >= 8) return weeks;
+  const titles = (sortedFindings || []).slice(0, 6).map((f) => f.code).join(', ');
+  const extra = [
+    { theme: "Contenu de fond : traiter les requêtes non couvertes", actions: [
+      "Repérez dans la Search Console les requêtes où vous apparaissez sans page dédiée, et créez une page par intention.",
+      "Enrichissez les deux pages les plus vues avec les questions réellement posées par vos clients.",
+    ] },
+    { theme: "Maillage interne et pages stratégiques", actions: [
+      "Ajoutez un lien contextuel depuis chaque article vers la page de service correspondante.",
+      "Vérifiez que chaque page importante est atteignable en deux clics depuis l'accueil.",
+    ] },
+    { theme: "Titres et descriptions des pages secondaires", actions: [
+      "Reprenez les balises title des pages de blog : sujet explicite, marque en fin, 30 à 65 caractères.",
+      "Rédigez une meta description unique par page, entre 120 et 165 caractères.",
+    ] },
+    { theme: "Autorité : premiers liens entrants", actions: [
+      "Inscrivez l'activité dans deux annuaires professionnels de votre secteur, avec la même adresse et le même numéro.",
+      "Proposez un article invité ou un témoignage à un site de votre métier qui accepte les contributions.",
+    ] },
+    { theme: "Vitesse et confort mobile", actions: [
+      "Convertissez les images les plus lourdes en WebP et fixez leur largeur d'affichage réelle.",
+      "Mesurez à nouveau le LCP mobile après conversion : l'objectif est sous 2,5 secondes.",
+    ] },
+    { theme: "Mesure : ce qui progresse et ce qui stagne", actions: [
+      "Relevez mensuellement impressions, clics et position moyenne par page dans la Search Console.",
+      "Comparez avec le relevé du mois précédent et gardez uniquement les actions qui ont produit un effet.",
+    ] },
+    { theme: "Conversion des pages qui reçoivent du trafic", actions: [
+      "Vérifiez que chaque page visitée propose une action claire : appel, devis, commande.",
+      "Testez un appel à l'action différent sur la page la plus consultée et comparez sur deux semaines.",
+    ] },
+    { theme: "Consolidation et audit de contrôle", actions: [
+      "Relancez un audit pour mesurer l'écart avec le score initial.",
+      "Corrigez les nouveaux constats apparus, puis figez les bons réflexes dans votre routine de publication.",
+    ] },
+  ];
+  let w = weeks.length;
+  for (const e of extra) {
+    if (w >= 12) break;
+    weeks.push({ semaine: w + 1, theme: e.theme, actions: [...e.actions] });
+    w += 1;
+  }
+  return weeks;
+}
+
 function buildPlan30(sortedFindings) {
   const weeks = [
     { semaine: 1, theme: 'Lever les blocages et les points critiques', actions: [] },
@@ -979,6 +1031,15 @@ export async function analyze(facts, { offer, model, fallbackFindings } = {}) {
 
   // Finalisation (notes de piliers recopiées, complétion ≥ 8 constats)
   finalizeReport(report, facts, findings, fixes);
+
+  // Offre 149 € : plan étendu à 90 jours si le modèle s'est arrêté à 30.
+  if (offer === 'audit_149') {
+    const before = (report.plan_30_jours || []).length;
+    report.plan_30_jours = completePlan90(report.plan_30_jours, findings);
+    if ((report.plan_30_jours || []).length > before) {
+      fixes.push(`plan étendu à ${report.plan_30_jours.length} semaines (offre 149)`);
+    }
+  }
 
   // Étape « 2 pages rédigées » (offre 149 € uniquement, hors mock)
   if (offer === 'audit_149' && !mock) {
