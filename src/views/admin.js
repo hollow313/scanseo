@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config.js';
+import { getDb } from '../db.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -50,7 +51,37 @@ function adminCustomLogo() {
       return '<img src="/admin/custom/logo.svg" alt="logo" style="height:28px;">';
     }
   } catch (e) { /* absent : logo texte */ }
-  return '<strong style="color:#38bdf8;">ScanSEO <span style="color:#94a3b8;">admin</span></strong>';
+  return '<span class="brand">ScanSEO <span style="color:var(--muted);font-weight:500;">admin</span></span>';
+}
+
+/**
+ * Bandeaux d'exploitation : ce qui casse silencieusement doit être visible
+ * sur TOUTES les pages d'admin, pas seulement dans une ligne de log.
+ */
+function systemAlerts() {
+  const out = [];
+  try {
+    const db = getDb();
+    const beat = db.prepare("SELECT value FROM system_kv WHERE key = 'worker_heartbeat'").get();
+    const ageMin = beat ? Math.round((Date.now() - new Date(beat.value).getTime()) / 60000) : null;
+    if (!beat) {
+      out.push({ level: 'danger', text: "Aucun worker n'a jamais démarré : les audits payés restent en file et personne ne reçoit de rapport." });
+    } else if (ageMin > 3) {
+      out.push({ level: 'danger', text: `Worker silencieux depuis ${ageMin} minutes : les audits ne sont plus traités.` });
+    }
+    const lastFail = db.prepare("SELECT error, created_at FROM emails WHERE status = 'failed' ORDER BY id DESC LIMIT 1").get();
+    const lastSent = db.prepare("SELECT sent_at FROM emails WHERE status = 'sent' ORDER BY id DESC LIMIT 1").get();
+    if (lastFail && (!lastSent || String(lastFail.created_at) > String(lastSent.sent_at || ''))) {
+      out.push({ level: 'warn', text: `Dernier envoi d'email en échec (${lastFail.error || 'erreur SMTP'}) : les clients ne reçoivent rien. Vérifier SMTP_URL et SMTP_FROM.` });
+    }
+    const stuck = db.prepare("SELECT count(*) c FROM audits WHERE status IN ('pending','queued')").get().c;
+    if (stuck > 0 && !beat) {
+      out.push({ level: 'info', text: `${stuck} audit(s) en attente dans la file.` });
+    }
+  } catch (err) {
+    out.push({ level: 'warn', text: `Diagnostic indisponible : ${err.message}` });
+  }
+  return out;
 }
 
 function renderAdminPage({ title, active, body }) {
@@ -67,36 +98,54 @@ function renderAdminPage({ title, active, body }) {
   <meta name="robots" content="noindex, nofollow">
   <title>${escapeHtml(title)} — ScanSEO admin</title>
   <style>
-    :root { --bg:#0b1220; --panel:#111a2e; --border:#1f2a44; --text:#e2e8f0; --muted:#8b9bb4; --accent:#38bdf8; --danger:#ef4444; --ok:#22c55e; }
+    /* Thème clair aligné sur le site public et le rapport PDF. */
+    :root {
+      --bg:#f7f8fb; --panel:#ffffff; --panel-2:#f8f9fc; --border:#e6e8ee;
+      --text:#0e1116; --ink-2:#3d4652; --muted:#6b7280;
+      --accent:#3b5bfd; --accent-7:#eef1ff; --accent-9:#dfe5ff;
+      --danger:#dc2626; --warn:#b45309; --ok:#0e9f6e;
+    }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:14px; line-height:1.5; }
-    header { background:var(--panel); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; }
+    body { background:var(--bg); color:var(--text); font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:14px; line-height:1.55; }
+    header { background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:0.65rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; position:sticky; top:0; z-index:10; }
+    .brand { display:flex; align-items:center; gap:8px; font-weight:700; letter-spacing:-0.01em; }
+    .brand::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--accent); }
     nav { display:flex; gap:0.25rem; flex-wrap:wrap; }
-    .nav-item { color:var(--muted); text-decoration:none; padding:0.4rem 0.75rem; border-radius:6px; font-size:0.9rem; }
-    .nav-item:hover { color:var(--text); background:#1a2540; }
-    .nav-item.active { color:var(--accent); background:#1a2540; }
-    main { max-width:1200px; margin:0 auto; padding:1.5rem; }
-    h1 { font-size:1.4rem; margin-bottom:1rem; }
-    h2 { font-size:1.1rem; margin:1.5rem 0 0.75rem; }
-    .panel { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1rem; }
+    .nav-item { color:var(--muted); text-decoration:none; padding:0.4rem 0.75rem; border-radius:8px; font-size:0.88rem; font-weight:500; }
+    .nav-item:hover { color:var(--text); background:var(--panel-2); }
+    .nav-item.active { color:var(--accent); background:var(--accent-7); }
+    main { max-width:1180px; margin:0 auto; padding:1.75rem 1.5rem 3rem; }
+    h1 { font-size:1.55rem; letter-spacing:-0.02em; margin-bottom:0.35rem; }
+    h2 { font-size:1.05rem; margin:1.75rem 0 0.75rem; letter-spacing:-0.01em; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.25rem; margin-bottom:1rem; }
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:1rem; }
-    .stat { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1rem; }
-    .stat .value { font-size:1.6rem; font-weight:800; color:var(--accent); }
-    .stat .label { color:var(--muted); font-size:0.8rem; }
-    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
-    th, td { text-align:left; padding:0.5rem 0.6rem; border-bottom:1px solid var(--border); vertical-align:top; }
-    th { color:var(--muted); font-weight:600; white-space:nowrap; }
-    a { color:var(--accent); }
-    .btn { display:inline-block; background:var(--accent); color:#0b1220; font-weight:700; padding:0.4rem 0.7rem; border-radius:6px; text-decoration:none; font-size:0.8rem; border:none; cursor:pointer; }
-    .btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
-    .btn.danger { background:transparent; color:var(--danger); border:1px solid var(--danger); }
-    .btn:hover { opacity:0.85; }
+    .stat { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.1rem; }
+    .stat .value { font-size:1.7rem; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+    .stat .label { color:var(--muted); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; margin-top:2px; }
+    table { width:100%; border-collapse:collapse; font-size:0.86rem; }
+    th, td { text-align:left; padding:0.6rem 0.65rem; border-bottom:1px solid var(--border); vertical-align:top; }
+    th { color:var(--muted); font-weight:600; white-space:nowrap; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; }
+    tbody tr:hover { background:var(--panel-2); }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .btn { display:inline-block; background:var(--accent); color:#fff; font-weight:600; padding:0.42rem 0.8rem; border-radius:9px; text-decoration:none; font-size:0.8rem; border:1px solid var(--accent); cursor:pointer; }
+    .btn:hover { opacity:0.9; text-decoration:none; }
+    .btn.ghost { background:#fff; color:var(--ink-2); border-color:var(--border); }
+    .btn.ghost:hover { border-color:var(--accent); color:var(--accent); }
+    .btn.danger { background:#fff; color:var(--danger); border-color:#f3c9c9; }
     .form-row { margin-bottom:0.9rem; }
-    label { display:block; color:var(--muted); font-size:0.8rem; margin-bottom:0.3rem; }
-    input, select { width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-size:0.9rem; }
-    .alert { background:var(--danger)18; border:1px solid var(--danger)55; color:#fecaca; border-radius:6px; padding:0.75rem 1rem; margin-bottom:1rem; }
+    label { display:block; color:var(--muted); font-size:0.76rem; letter-spacing:0.04em; margin-bottom:0.3rem; }
+    input, select, textarea { width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border); border-radius:9px; background:#fff; color:var(--text); font-size:0.9rem; font-family:inherit; }
+    input:focus, select:focus, textarea:focus { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+    .alert { background:#fdeaea; border:1px solid #f7cfcf; border-left:4px solid var(--danger);
+      color:#8f1d1d; border-radius:10px; padding:0.9rem 1rem; margin-bottom:0.75rem; font-weight:600; }
+    .alert::before { content:"! "; font-weight:800; }
+    .alert.warn { background:#fdf3e3; border-color:#f3ddb8; border-left-color:var(--warn); color:#7a3f06; }
+    .alert.warn::before { content:"△ "; }
+    .alert.info { background:var(--accent-7); border-color:var(--accent-9); border-left-color:var(--accent); color:#22307a; font-weight:500; }
+    .alert.info::before { content:"i "; }
     .ok { color:var(--ok); } .err { color:var(--danger); } .muted { color:var(--muted); }
-    pre { background:#0b1220; border:1px solid var(--border); border-radius:6px; padding:0.75rem; overflow-x:auto; font-size:0.8rem; max-height:400px; overflow-y:auto; }
+    pre { background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:0.75rem; overflow-x:auto; font-size:0.78rem; max-height:400px; overflow-y:auto; color:var(--ink-2); }
     .filters { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; }
     .filters select, .filters input { width:auto; min-width:140px; }
     .actions { display:flex; gap:0.35rem; flex-wrap:wrap; }
@@ -108,7 +157,10 @@ function renderAdminPage({ title, active, body }) {
     ${adminCustomLogo()}
     <nav>${nav}</nav>
   </header>
-  <main>${body}</main>
+  <main>
+    ${systemAlerts().map((a) => `<div class="alert${a.level === 'danger' ? '' : ' ' + a.level}">${escapeHtml(a.text)}</div>`).join('')}
+    ${body}
+  </main>
 </body>
 </html>`;
 }
