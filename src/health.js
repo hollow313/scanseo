@@ -122,6 +122,14 @@ export function checkHealth() {
   const chromiumVersion = getChromiumVersion();
   const workerLastSeen = getSystemKv('worker_heartbeat');
 
+  // Une offre en vente sans produit Polar est une boutique fermée : le bouton
+  // « Commander » renvoie une erreur. On l'expose dans /healthz et dans l'admin.
+  const products = {
+    audit_29: Boolean(config.polarProduct29),
+    audit_59: Boolean(config.polarProduct59),
+  };
+  const shopReady = products.audit_29 && products.audit_59;
+
   const ok = dbOk && reportsOk && contentOk && (mailStatus === 'configured' || mailStatus === 'ok');
 
   return {
@@ -135,6 +143,8 @@ export function checkHealth() {
       mail: mailStatus,
       chromium_version: chromiumVersion,
       worker_last_seen: workerLastSeen,
+      polar_products: products,
+      shop_ready: shopReady,
       queue
     }
   };

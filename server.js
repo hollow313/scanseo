@@ -116,7 +116,15 @@ app.get('/checkout/:offer', (req, res) => {
   }
 
   // Liens de checkout créés côté Polar (un par produit). Un lien mort ici = aucun encaissement.
-  const polarCheckoutUrl = offer === 'audit_49' ? config.polarCheckout49 : config.polarCheckout149;
+  // Un lien par offre, explicitement. L'ancien ternaire renvoyait le lien de l'offre
+  // 149 € pour toute offre inconnue : un client aurait payé 149 € pour un audit à 29 €.
+  const POLAR_CHECKOUTS = {
+    audit_29: config.polarCheckout29,
+    audit_59: config.polarCheckout59,
+    audit_49: config.polarCheckout49,
+    audit_149: config.polarCheckout149,
+  };
+  const polarCheckoutUrl = POLAR_CHECKOUTS[offer];
   if (!polarCheckoutUrl || !polarCheckoutUrl.startsWith('https://')) {
     console.error('[checkout] lien Polar manquant ou invalide pour', offer);
     return res.status(503).send("Le paiement est momentanément indisponible. Réessayez dans quelques minutes.");

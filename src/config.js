@@ -42,6 +42,8 @@ export const config = {
   polarProduct59: process.env.POLAR_PRODUCT_59 || '',
   polarProduct49: process.env.POLAR_PRODUCT_49 || '',
   // liens de checkout Polar (publics). Surchargeables par env.
+  polarCheckout29: process.env.POLAR_CHECKOUT_29 || '',
+  polarCheckout59: process.env.POLAR_CHECKOUT_59 || '',
   polarCheckout49: process.env.POLAR_CHECKOUT_49 || 'https://buy.polar.sh/polar_cl_k4QjhXH3YH57cuhcG06VhC0mWL5lH1Rp4qqOI2hzLsw',
   polarCheckout149: process.env.POLAR_CHECKOUT_149 || 'https://buy.polar.sh/polar_cl_Xb8MfXTawFL0doZNQuWhzeT8b7JnHouzDXBzu4WDbkQ',
   polarProduct149: process.env.POLAR_PRODUCT_149 || '',
