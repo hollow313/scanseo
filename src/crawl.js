@@ -449,6 +449,21 @@ export async function collect(audit, { onProgress } = {}) {
   function parsePage(res, url, depth) {
     const html = res.text || '';
     const finalUrl = res.url || url;
+
+    // Une page de commande qui redirige vers Polar, ou un PDF, n'est pas une page du
+    // site : la juger produisait des constats « critique » (title absent, contenu
+    // mince) sur des documents qui ne lui appartiennent pas. On l'ignore.
+    try {
+      const norm = (h) => {
+        const raw = String(h || '').includes('://') ? String(h) : 'https://' + String(h || '');
+        try { return new URL(raw).hostname.replace(/^www\./, '').toLowerCase(); } catch { return ''; }
+      };
+      if (norm(finalUrl) !== norm(host)) return null;
+    } catch { return null; }
+    const contentType = String(
+      (res.headers && (res.headers['content-type'] || res.headers['Content-Type'])) || 'text/html'
+    ).toLowerCase();
+    if (!contentType.includes('text/html') && !contentType.includes('text/plain')) return null;
     const title = getTitle(html);
     const meta = getMeta(html, 'description') || '';
     const h1s = getHeadings(html, 1);
@@ -577,6 +592,7 @@ export async function collect(audit, { onProgress } = {}) {
     const res = await safeGet(item.url);
     if (res.truncated) truncatedAny = true;
     const page = parsePage(res, item.url, item.depth);
+    if (!page) continue; // redirection hors site ou fichier non-HTML
     facts.pages.push(page);
     if (onProgress) { try { onProgress(facts.pages.length, maxPages); } catch {} }
 

@@ -54,13 +54,15 @@ function claim() {
   })();
 }
 
+// Le heartbeat doit battre PENDANT un audit, pas seulement entre deux : le pipeline
+// bloque la boucle plusieurs minutes (crawl + LLM + PDF), ce qui faisait croire à un
+// worker mort alors qu'il travaillait. Un audit de 6 minutes déclenchait l'alerte.
+const beatTimer = setInterval(heartbeat, 15000);
+if (typeof beatTimer.unref === 'function') beatTimer.unref();
+
 async function loop() {
-  let lastBeat = 0;
+  heartbeat();
   while (running) {
-    if (Date.now() - lastBeat > 15000) {
-      heartbeat();
-      lastBeat = Date.now();
-    }
 
     let audit = null;
     try {
