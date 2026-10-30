@@ -296,6 +296,16 @@ process.on('uncaughtException', (err) => {
   console.error('[process] uncaughtException:', err?.message || err);
 });
 
+// Mode « tout-en-un » : le worker tourne dans le même conteneur que le web.
+// Pratique pour une installation simple (une seule app TrueNAS), au prix d'un
+// partage de mémoire avec Chromium et d'un redémarrage commun.
+if (String(process.env.WORKER_IN_PROCESS || '').toLowerCase() === 'true') {
+  console.log('[scanseo-web] WORKER_IN_PROCESS=true → démarrage du worker dans ce processus');
+  import('./worker.js').catch((err) => {
+    console.error('[scanseo-web] worker en processus impossible:', err.message);
+  });
+}
+
 // Démarrage du serveur HTTP
 const server = app.listen(config.port, '0.0.0.0', () => {
   console.log(`[scanseo-web] En écoute sur le port ${config.port} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
