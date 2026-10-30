@@ -229,7 +229,7 @@
         '</div>');
     }
     function poll(id, tries) {
-      if (tries > 30) { message('L\u2019analyse prend plus de temps que prévu. Réessayez dans une minute.'); return; }
+      if (tries > 60) { message('L\u2019analyse prend plus de temps que prévu. Réessayez dans une minute.'); return; }
       fetch('/api/scan/' + encodeURIComponent(id))
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function (d) {
@@ -244,7 +244,7 @@
       var url = document.getElementById('scan-url');
       var email = document.getElementById('scan-email');
       if (!url || !url.value) return;
-      show('<p style="margin:0;font-size:.95rem;color:#3d4652">Analyse en cours… 15 à 30 secondes.</p>');
+      show('<p style="margin:0;font-size:.95rem;color:#3d4652">Analyse en cours… 20 secondes à 2 minutes selon la taille du site.</p>');
       var body = { url: url.value };
       if (email && email.value) body.email = email.value;
       fetch('/api/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
