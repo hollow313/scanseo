@@ -142,6 +142,17 @@ for (const slug of publicPages) {
       }));
     }
 
+    // Descriptions rédigées : le repli générique tombait à 28–31 caractères, très en
+    // dessous des 120–165 recommandés — sur un site qui vend des audits SEO.
+    const descriptions = {
+      tarifs: "Deux offres, un paiement unique : audit complet à 49 € TTC (25 pages) ou 149 € TTC (100 pages), rapport PDF et plan d'action livrés par email sous 15 minutes.",
+      faq: "Délai de livraison, pages analysées, données conservées, remboursement, garanties : les réponses aux questions les plus fréquentes sur l'audit SEO automatisé.",
+      exemple: "Un rapport d'audit réel anonymisé : score par pilier, constats mesurés page par page, textes prêts à coller et plan d'action sur 30 jours. Voyez ce que vous recevez.",
+      'mentions-legales': "Éditeur, hébergeur et responsable de publication de scanseo.fr, avec les informations légales de l'entreprise individuelle Loïc Huon (SIREN 853 658 375).",
+      cgv: "Conditions générales de vente des audits SEO ScanSEO : commande, livraison, rétractation, garanties et médiation. Paiement sécurisé, facture émise par Polar.",
+      confidentialite: "Quelles données ScanSEO conserve (email, URL auditée, rapport), pendant combien de temps, et comment demander leur suppression. Aucun cookie, aucun traceur.",
+    };
+
     const titles = {
       tarifs: 'Tarifs des audits SEO — ScanSEO',
       faq: 'Foire aux questions — ScanSEO',
@@ -153,7 +164,7 @@ for (const slug of publicPages) {
 
     const html = renderPage({
       title: titles[slug] || `${page.title || slug.toUpperCase()} — ScanSEO`,
-      description: page.description || `Page ${slug} du service ScanSEO.`,
+      description: page.description || descriptions[slug] || `Page ${slug} du service ScanSEO.`,
       content: page.html,
       path: `/${slug}`
     });
@@ -224,7 +235,7 @@ app.get('/blog', (req, res) => {
     : '<div class="content-box"><p>Aucun article publié pour le moment.</p></div>';
   res.status(200).send(renderPage({
     title: 'Conseils référencement pour PME et artisans — ScanSEO',
-    description: "Comprendre le référencement naturel sans jargon : prix, délais, erreurs fréquentes et méthode.",
+    description: "Comprendre le référencement naturel sans jargon : ce que coûte un audit SEO, les causes réelles d'un site invisible sur Google, et la méthode pour corriger.",
     content: `<div class="content-box"><h1>Comprendre le référencement</h1>
       <p>Des réponses concrètes aux questions que se posent les dirigeants de TPE et les artisans.</p></div>${items}`,
     path: '/blog'
@@ -243,7 +254,7 @@ app.get('/blog/:slug', (req, res) => {
   res.status(200).send(renderPage({
     title: `${post.title} — ScanSEO`.slice(0, 65),
     description: post.description,
-    content: `<div class="content-box">${post.html}</div>
+    content: `<div class="content-box"><h1>${post.title}</h1>${post.html}</div>
       <div class="content-box"><p><a href="/tarifs" class="btn">Voir les audits (dès 49 €)</a>
       <a href="/blog" style="margin-left:1rem">Tous les articles</a></p></div>`,
     path: `/blog/${post.slug}`
