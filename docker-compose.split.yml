@@ -1,0 +1,29 @@
+# Mode isolé (option B) : deux services, une seule app YAML.
+# À préférer si les audits tournent en continu ou si le site ne doit jamais être
+# ralenti par un rendu PDF. Dans .env, laisser WORKER_IN_PROCESS=false.
+services:
+  web:
+    image: ghcr.io/hollow313/scanseo:latest
+    container_name: scanseo-web
+    restart: unless-stopped
+    env_file: /mnt/NVMe/Applications/scanseo/.env
+    environment:
+      - WORKER_IN_PROCESS=false
+    ports: ["192.168.1.200:30023:3000"]
+    volumes:
+      - /mnt/NVMe/Applications/scanseo/data:/data
+      - /mnt/NVMe/Applications/scanseo/reports:/reports
+      - /mnt/NVMe/Applications/scanseo/content:/content
+    mem_limit: 1g
+
+  worker:
+    image: ghcr.io/hollow313/scanseo:latest
+    container_name: scanseo-worker
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    env_file: /mnt/NVMe/Applications/scanseo/.env
+    volumes:
+      - /mnt/NVMe/Applications/scanseo/data:/data
+      - /mnt/NVMe/Applications/scanseo/reports:/reports
+    mem_limit: 1500m
+    shm_size: 256m

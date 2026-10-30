@@ -1,24 +1,21 @@
 services:
-  web:
+  # Mode par défaut : UNE seule app TrueNAS, un seul conteneur.
+  # Le worker (crawl, rédaction, PDF, email) tourne dans le même processus que le web,
+  # piloté par WORKER_IN_PROCESS=true. Prévoir 2 Go de RAM : Chromium partage la
+  # mémoire avec le site.
+  #
+  # Mode isolé (web + worker séparés) : voir docker-compose.split.yml.
+  scanseo:
     image: ghcr.io/hollow313/scanseo:latest
-    container_name: scanseo-web
+    container_name: scanseo
     restart: unless-stopped
     env_file: /mnt/NVMe/Applications/scanseo/.env
+    environment:
+      - WORKER_IN_PROCESS=true
     ports: ["192.168.1.200:30023:3000"]
     volumes:
       - /mnt/NVMe/Applications/scanseo/data:/data
       - /mnt/NVMe/Applications/scanseo/reports:/reports
       - /mnt/NVMe/Applications/scanseo/content:/content
-    mem_limit: 1g
-
-  worker:
-    image: ghcr.io/hollow313/scanseo:latest
-    container_name: scanseo-worker
-    restart: unless-stopped
-    command: ["node", "worker.js"]
-    env_file: /mnt/NVMe/Applications/scanseo/.env
-    volumes:
-      - /mnt/NVMe/Applications/scanseo/data:/data
-      - /mnt/NVMe/Applications/scanseo/reports:/reports
-    mem_limit: 1500m
+    mem_limit: 2g
     shm_size: 256m

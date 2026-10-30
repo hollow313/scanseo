@@ -1,10 +1,13 @@
-# Déploiement TrueNAS — les deux services
+# Déploiement TrueNAS
 
-Le service est **deux conteneurs** issus de la même image. Le `web` sert le site et reçoit le
-webhook Polar ; le `worker` traite la file (crawl → rédaction → PDF → email). **Sans worker, un
-client paie et ne reçoit jamais rien** — et rien ne le signale dans les logs du web.
+**Mode par défaut : une seule application.** Le worker (crawl → rédaction → PDF → email) tourne
+dans le même processus que le site, piloté par `WORKER_IN_PROCESS=true`. Un conteneur à maintenir,
+un seul endroit où mettre les variables, un seul `pull`.
 
-## 1. Mise à jour de l'image (obligatoire à chaque livraison)
+Si vous préférez isoler les deux processus (audits en continu, site qui ne doit jamais ralentir un
+rendu PDF), utilisez `docker-compose.split.yml` et laissez `WORKER_IN_PROCESS=false`.
+
+## 1. Mise à jour
 
 ```bash
 cd /mnt/NVMe/Applications/scanseo
@@ -13,31 +16,17 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Un correctif poussé n'est actif qu'après ce `pull` : le conteneur continue de tourner sur l'image
-précédente sans prévenir.
+précédente sans prévenir. **Une variable d'environnement modifiée ne s'applique jamais à un
+conteneur qui tourne** — il faut recréer le conteneur (`up -d` suffit).
 
-## 2. Application `worker` (TrueNAS → Applications → Installer via YAML)
+## 2. Variables à ajouter à l'application existante
 
-```yaml
-services:
-  scanseo-worker:
-    image: ghcr.io/hollow313/scanseo:latest
-    container_name: scanseo-worker
-    restart: unless-stopped
-    command: ["node", "worker.js"]
-    env_file: /mnt/NVMe/Applications/scanseo/.env
-    volumes:
-      - /mnt/NVMe/Applications/scanseo/data:/data
-      - /mnt/NVMe/Applications/scanseo/reports:/reports
-    mem_limit: 1500m
-    shm_size: 256m
-```
+| Variable | Valeur | Pourquoi |
+|---|---|---|
+| `WORKER_IN_PROCESS` | `true` | sans elle, la file n'est jamais consommée : un client paie et rien ne se passe |
+| `SCAN_API_KEY` | `openssl rand -hex 32` | active `/api/prospect/scan` (scans de démarchage) |
 
-- **`command: ["node", "worker.js"]`** est la ligne qui compte. Sans elle, l'application démarre un
-  second site web qui ne traite aucune file.
-- **Pas de port publié.**
-- **`env_file` identique** à celui du web : le worker valide les 12 mêmes variables et refuse de
-  démarrer s'il en manque une (message `FATAL: variables d'environnement requises manquantes`).
-- **Pas de montage `/content`** : le worker ne sert aucune page.
+Et **2 Go de mémoire** au lieu de 1 : Chromium (rendu PDF) partage désormais la mémoire du site.
 
 ## 3. Vérification (30 secondes)
 
@@ -51,11 +40,12 @@ Attendu :
 { "worker_last_seen": "2026-10-30T15:0…", "queue": { "pending": 0 } }
 ```
 
-- `worker_last_seen` reste `null` → l'app ne tourne pas, ou la commande n'est pas `node worker.js`.
-- `pending` qui ne descend pas → le worker tourne mais n'arrive pas à lire `/data` (droits 568).
+- `worker_last_seen` reste `null` → `WORKER_IN_PROCESS` n'est pas à `true`, ou le conteneur n'a pas
+  été recréé.
+- `pending` qui ne descend pas → le worker tourne mais n'écrit pas dans `/data` (droits 568).
 
-Puis, dans `/admin` : le bandeau rouge « Worker silencieux » doit disparaître, et un audit relancé
-depuis `/admin/audits` doit passer `running` → `done` en quelques minutes.
+Dans `/admin`, le bandeau rouge « Worker silencieux » doit disparaître, et un audit relancé depuis
+`/admin/audits` doit passer `running` → `done` en quelques minutes.
 
 ## 4. Email
 
@@ -64,5 +54,14 @@ adresse autorisée par ce compte (sinon le relais OVH refuse). Le test se fait d
 **`/admin/system` → « Envoyer un email de test »** : le résultat et l'erreur SMTP s'affichent dans
 la page, pas seulement dans les logs.
 
-Sans cette vérification, `mail: "configured"` ne veut rien dire : seul un email reçu prouve que la
-livraison fonctionne.
+`mail: "configured"` ne prouve rien : seul un email reçu prouve que la livraison fonctionne.
+
+## 5. Mode isolé (option)
+
+```bash
+docker compose -f docker-compose.split.yml pull
+docker compose -f docker-compose.split.yml up -d
+```
+
+Deux services, deux fois plus de mémoire (1 Go + 1,5 Go), mais un crash d'audit n'affecte que le
+worker.
