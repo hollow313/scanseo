@@ -17,6 +17,11 @@ const db = getDb();
 
 const app = express();
 
+// Derrière le reverse proxy (NPM), req.ip vaut l'IP du proxy pour TOUS les
+// visiteurs : sans ce réglage, les limites par IP deviennent globales et trois
+// scans gratuits bloquent le site entier. On fait confiance au premier saut.
+app.set('trust proxy', 1);
+
 // Rapport d'exemple : un vrai audit, consultable sans laisser son email.
 app.get('/exemple/rapport.pdf', (req, res) => {
   const candidates = [

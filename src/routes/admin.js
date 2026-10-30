@@ -78,6 +78,21 @@ function requireAdmin(req, res, next) {
   return res.status(401).send('Authentification requise');
 }
 
+/**
+ * Anti-CSRF : le Basic Auth est renvoyé automatiquement par le navigateur sur une
+ * requête POST forgée depuis un autre site. On refuse donc toute écriture dont
+ * l'origine ne correspond pas au domaine public.
+ */
+router.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  const origin = req.headers.origin || req.headers.referer || '';
+  const expected = (config.publicBaseUrl || '').replace(/\/$/, '');
+  if (!origin || !expected || !origin.startsWith(expected)) {
+    return res.status(403).send('Origine refusée');
+  }
+  return next();
+});
+
 // En-tête noindex sur l'ensemble de l'admin.
 router.use((req, res, next) => {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
